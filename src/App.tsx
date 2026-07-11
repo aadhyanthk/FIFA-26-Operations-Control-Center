@@ -1,9 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { TopBar } from './components/layout/TopBar';
 import { TabBar } from './components/layout/TabBar';
 import { StatusBar } from './components/layout/StatusBar';
+import { useStadiumStore } from './store/stadiumStore';
+import { SimulationEngine } from './simulation/SimulationEngine';
+
+const engine = new SimulationEngine();
 
 function App() {
+  const { isPaused, speed, updateState } = useStadiumStore();
+  const stateRef = useRef(useStadiumStore.getState());
+
+  useEffect(() => {
+    useStadiumStore.subscribe((state) => {
+      stateRef.current = state;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+
+    const intervalId = setInterval(() => {
+      const currentState = stateRef.current;
+      // At speed multiplier n, the interval is 1000/n ms and each tick advances sim time by 1 second
+      const updates = engine.tick(currentState, 1);
+      
+      useStadiumStore.getState().tick(1);
+      useStadiumStore.getState().updateState(updates);
+      
+    }, 1000 / speed);
+
+    return () => clearInterval(intervalId);
+  }, [isPaused, speed]);
+
   return (
     <div style={{
       width: '100vw',
