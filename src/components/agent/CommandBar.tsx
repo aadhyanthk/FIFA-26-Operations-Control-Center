@@ -3,11 +3,11 @@ import { useUIStore } from '../../store/uiStore';
 
 export const CommandBar: React.FC = () => {
   const [query, setQuery] = useState('');
-  const { isAIPanelOpen, setAIPanelOpen } = useUIStore();
+  const { aiPanelOpen, setAiPanelOpen } = useUIStore();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
-      if (!isAIPanelOpen) setAIPanelOpen(true);
+      if (!aiPanelOpen) setAiPanelOpen(true);
       // In a real app, this would dispatch the query to the agent
       console.log('Dispatching query to Agent:', query);
       setQuery('');

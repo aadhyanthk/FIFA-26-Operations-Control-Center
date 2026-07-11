@@ -3,9 +3,9 @@ import { useUIStore } from '../../store/uiStore';
 import { AgentHistory } from '../agent/AgentHistory';
 
 export const AIPanel: React.FC = () => {
-  const { isAIPanelOpen, setAIPanelOpen } = useUIStore();
+  const { aiPanelOpen, setAiPanelOpen } = useUIStore();
 
-  if (!isAIPanelOpen) return null;
+  if (!aiPanelOpen) return null;
 
   return (
     <div style={{
@@ -28,7 +28,7 @@ export const AIPanel: React.FC = () => {
           AI Agent Activity
         </div>
         <button
-          onClick={() => setAIPanelOpen(false)}
+          onClick={() => setAiPanelOpen(false)}
           style={{
             background: 'none',
             border: 'none',
