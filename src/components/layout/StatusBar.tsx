@@ -1,6 +1,24 @@
 import React from 'react';
+import { useStadiumStore } from '../../store/stadiumStore';
 
 export const StatusBar: React.FC = () => {
+  const { simTime, tickCount, speed, isPaused, setSpeed, togglePause } = useStadiumStore();
+
+  const formatSimTime = (time: number) => {
+    // 0 is kickoff (e.g. 15:00)
+    // 14:32 (T-28min)
+    const kickoffSeconds = 15 * 3600; // 15:00 in seconds
+    const currentSeconds = kickoffSeconds + time;
+    
+    const h = Math.floor(currentSeconds / 3600) % 24;
+    const m = Math.floor((currentSeconds % 3600) / 60);
+    
+    const absMin = Math.floor(Math.abs(time) / 60);
+    const tString = time < 0 ? `T-${absMin}m` : `T+${absMin}m`;
+    
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} (${tString})`;
+  };
+
   return (
     <div style={{
       height: '32px',
@@ -18,18 +36,20 @@ export const StatusBar: React.FC = () => {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
         <div className="mono" style={{ fontSize: '11px', color: 'var(--text-primary)' }}>
-          Sim: 14:32 (T-28min)
+          Sim: {formatSimTime(simTime)}
         </div>
         <div className="mono" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-          Tick: 847
+          Tick: {tickCount}
         </div>
         <div className="mono" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-          Events: 23
+          Events: {useStadiumStore(state => state.incidents.length)}
         </div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-        <button style={{ 
+        <button 
+          onClick={() => setSpeed(speed === 10 ? 1 : (speed === 1 ? 2 : (speed === 2 ? 5 : 10)))}
+          style={{ 
           color: 'var(--text-primary)', 
           fontSize: '12px', 
           backgroundColor: 'var(--bg-tertiary)',
@@ -37,17 +57,19 @@ export const StatusBar: React.FC = () => {
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--border)'
         }}>
-          ▶ 2x
+          ▶ {speed}x
         </button>
-        <button style={{ 
-          color: 'var(--text-secondary)', 
+        <button 
+          onClick={togglePause}
+          style={{ 
+          color: isPaused ? 'var(--warning)' : 'var(--text-secondary)', 
           fontSize: '12px', 
           backgroundColor: 'transparent',
           padding: '2px 8px',
           borderRadius: 'var(--radius-sm)',
           border: '1px solid transparent'
         }}>
-          ⏸
+          {isPaused ? '▶' : '⏸'}
         </button>
         <button style={{ 
           color: 'var(--accent)', 

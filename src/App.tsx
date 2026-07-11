@@ -2,13 +2,16 @@ import { useEffect, useRef } from 'react';
 import { TopBar } from './components/layout/TopBar';
 import { TabBar } from './components/layout/TabBar';
 import { StatusBar } from './components/layout/StatusBar';
+import { OverviewTab } from './components/tabs/OverviewTab';
 import { useStadiumStore } from './store/stadiumStore';
+import { useUIStore } from './store/uiStore';
 import { SimulationEngine } from './simulation/SimulationEngine';
 
 const engine = new SimulationEngine();
 
 function App() {
   const { isPaused, speed, updateState } = useStadiumStore();
+  const { activeTab } = useUIStore();
   const stateRef = useRef(useStadiumStore.getState());
 
   useEffect(() => {
@@ -60,9 +63,12 @@ function App() {
           padding: 'var(--space-md)',
           overflowY: 'auto'
         }}>
-          <div style={{ color: 'var(--text-secondary)' }}>
-            Overview content will go here...
-          </div>
+          {activeTab === 'Overview' && <OverviewTab />}
+          {activeTab !== 'Overview' && (
+            <div style={{ color: 'var(--text-secondary)' }}>
+              {activeTab} content will go here...
+            </div>
+          )}
         </div>
 
         {/* AI Panel Placeholder */}
