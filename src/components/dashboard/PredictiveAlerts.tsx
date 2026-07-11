@@ -1,6 +1,41 @@
 import React from 'react';
+import { useStadiumStore } from '../../store/stadiumStore';
 
 export const PredictiveAlerts: React.FC = () => {
+  const { gates, transport } = useStadiumStore();
+
+  let alertMessage = null;
+
+  // Simple heuristic for predictive alerts
+  const highWaitGates = Object.values(gates).filter(g => g.averageWaitTime > 15);
+  
+  if (transport.trainDelays > 10) {
+    alertMessage = `Significant transport delays (${transport.trainDelays} mins) detected. Expect irregular crowd surges when resolved.`;
+  } else if (highWaitGates.length > 0) {
+    alertMessage = `Based on current arrival rates, Gate ${highWaitGates[0].id} queue is predicted to exceed 20 minutes wait time shortly.`;
+  }
+
+  if (!alertMessage) {
+    return (
+      <div style={{
+        backgroundColor: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-md)',
+        padding: 'var(--space-md)',
+        color: 'var(--text-secondary)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-md)'
+      }}>
+        <div style={{ fontSize: '18px', filter: 'grayscale(100%)' }}>🤖</div>
+        <div>
+          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>AI Predictive Monitor</div>
+          <div style={{ fontSize: '13px' }}>All systems nominal. No predictive risks detected.</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       backgroundColor: 'var(--info-bg)',
@@ -16,16 +51,18 @@ export const PredictiveAlerts: React.FC = () => {
       <div>
         <div style={{ fontWeight: 600, marginBottom: '4px' }}>AI Predictive Alert</div>
         <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-          Based on current transport delays and arrival rates, Gate C queue is predicted to exceed 20 minutes wait time in approximately 12 minutes.
+          {alertMessage}
         </div>
         <div style={{ marginTop: 'var(--space-sm)' }}>
           <button style={{
             backgroundColor: 'var(--accent)',
             color: 'white',
+            border: 'none',
             padding: '4px 12px',
             borderRadius: 'var(--radius-sm)',
             fontSize: '12px',
-            fontWeight: 500
+            fontWeight: 500,
+            cursor: 'pointer'
           }}>
             Generate Plan
           </button>

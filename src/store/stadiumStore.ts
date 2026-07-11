@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { StadiumEvent } from '../simulation/EventEngine';
+import { stadiumLayout } from '../data/stadiumLayout';
 
 // Basic state structures
 export interface WeatherState {
@@ -95,8 +96,26 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'F': { id: 'F', isOpen: true, capacityPerHour: 1200, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
   },
   
-  zones: {},
-  teams: {},
+  zones: stadiumLayout.zones.reduce((acc, z) => {
+    acc[z.id] = {
+      id: z.id,
+      name: z.name,
+      currentOccupancy: 0,
+      maxCapacity: z.maxCapacity,
+      density: 0
+    };
+    return acc;
+  }, {} as Record<string, ZoneState>),
+  
+  teams: {
+    'sec-1': { id: 'sec-1', department: 'security', location: 'Gate A', status: 'idle' },
+    'sec-2': { id: 'sec-2', department: 'security', location: 'Section 101-104', status: 'idle' },
+    'med-1': { id: 'med-1', department: 'medical', location: 'East Concourse', status: 'idle' },
+    'med-2': { id: 'med-2', department: 'medical', location: 'West Concourse', status: 'idle' },
+    'mnt-1': { id: 'mnt-1', department: 'maintenance', location: 'Gate C', status: 'idle' },
+    'cln-1': { id: 'cln-1', department: 'cleaning', location: 'South Concourse', status: 'idle' },
+  },
+  
   incidents: [],
   
   setSpeed: (speed) => set({ speed }),

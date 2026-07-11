@@ -71,14 +71,36 @@ export const StatusBar: React.FC = () => {
         }}>
           {isPaused ? '▶' : '⏸'}
         </button>
-        <button style={{ 
+        <button
+          onClick={() => {
+            const types = ['crowd', 'medical', 'security', 'maintenance', 'weather', 'transport'] as const;
+            const type = types[Math.floor(Math.random() * types.length)];
+            const severities = ['low', 'medium', 'high', 'critical'] as const;
+            const severity = severities[Math.floor(Math.random() * severities.length)];
+            const locations = ['Gate A', 'Section 101', 'East Concourse', 'Section 320', 'Gate C', 'West Club'];
+            const location = locations[Math.floor(Math.random() * locations.length)];
+            
+            useStadiumStore.getState().addIncident({
+              id: `ev-manual-${Math.random().toString(36).substr(2, 9)}`,
+              timestamp: simTime,
+              type,
+              severity,
+              title: `Manual Test Incident (${type})`,
+              description: `This is an injected event for testing purposes.`,
+              location,
+              relatedEvents: [],
+              status: 'new'
+            });
+          }}
+          style={{ 
           color: 'var(--accent)', 
           fontSize: '12px', 
           backgroundColor: 'transparent',
           padding: '2px 8px',
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--accent)',
-          marginLeft: 'var(--space-md)'
+          marginLeft: 'var(--space-md)',
+          cursor: 'pointer'
         }}>
           + Event
         </button>

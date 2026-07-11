@@ -29,5 +29,6 @@ PROJECT.md
 LOG.md
 implementation_plan.md
 INITIAL-CONVERSATION.MD
+TOFIX.md
 .env
 src-tauri/target
