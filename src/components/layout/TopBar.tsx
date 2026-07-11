@@ -1,4 +1,5 @@
 import React from 'react';
+import { CommandBar } from '../agent/CommandBar';
 
 export const TopBar: React.FC = () => {
   return (
@@ -16,23 +17,10 @@ export const TopBar: React.FC = () => {
       right: 0,
       zIndex: 100
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>FIFA 26 OCC</div>
+      <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '16px' }}>
+        FIFA 26 <span style={{ color: 'var(--text-secondary)' }}>OCC</span>
       </div>
-      
-      <div style={{ 
-        width: '400px', 
-        height: '28px', 
-        backgroundColor: 'var(--bg-tertiary)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-sm)',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 var(--space-sm)',
-        color: 'var(--text-muted)'
-      }}>
-        <span className="mono" style={{ fontSize: '12px' }}>⌘ Ask anything or type /command...</span>
-      </div>
+      <CommandBar />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>

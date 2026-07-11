@@ -7,6 +7,8 @@ import { GatesTab } from './components/tabs/GatesTab';
 import { SecurityTab } from './components/tabs/SecurityTab';
 import { MedicalTab } from './components/tabs/MedicalTab';
 import { MaintenanceTab } from './components/tabs/MaintenanceTab';
+import { AgentTab } from './components/tabs/AgentTab';
+import { AIPanel } from './components/layout/AIPanel';
 import { useStadiumStore } from './store/stadiumStore';
 import { useUIStore } from './store/uiStore';
 import { SimulationEngine } from './simulation/SimulationEngine';
@@ -72,21 +74,11 @@ function App() {
           {activeTab === 'Security' && <SecurityTab />}
           {activeTab === 'Medical' && <MedicalTab />}
           {activeTab === 'Maintenance' && <MaintenanceTab />}
-          {activeTab === 'Agent' && (
-            <div style={{ color: 'var(--text-secondary)' }}>
-              Agent content will go here...
-            </div>
-          )}
+          {activeTab === 'Agent' && <AgentTab />}
         </div>
 
-        {/* AI Panel Placeholder */}
-        <div style={{
-          width: '350px',
-          borderLeft: '1px solid var(--border)',
-          backgroundColor: 'var(--bg-secondary)',
-          display: 'none' // Hidden for now
-        }}>
-        </div>
+        {/* AI Panel */}
+        <AIPanel />
       </div>
 
       <StatusBar />
