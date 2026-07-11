@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { StadiumEvent } from '../simulation/EventEngine';
+import type { StadiumEvent } from '../simulation/EventEngine';
 
 // Basic state structures
 export interface WeatherState {

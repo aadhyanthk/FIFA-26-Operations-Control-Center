@@ -1,4 +1,4 @@
-import { StadiumState } from '../store/stadiumStore';
+import type { StadiumState } from '../store/stadiumStore';
 import { WeatherEngine } from './WeatherEngine';
 import { TransportEngine } from './TransportEngine';
 import { ArrivalEngine } from './ArrivalEngine';

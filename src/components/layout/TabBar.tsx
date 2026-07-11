@@ -1,8 +1,11 @@
 import React from 'react';
+import { useUIStore } from '../../store/uiStore';
 
 const tabs = ['Overview', 'Gates', 'Security', 'Medical', 'Maintenance', 'Agent'];
 
 export const TabBar: React.FC = () => {
+  const { activeTab, setActiveTab } = useUIStore();
+
   return (
     <div style={{
       height: '40px',
@@ -18,18 +21,26 @@ export const TabBar: React.FC = () => {
       zIndex: 90,
       gap: 'var(--space-md)'
     }}>
-      {tabs.map((tab, idx) => (
-        <div key={tab} style={{
-          padding: '8px 16px',
-          color: idx === 0 ? 'var(--text-primary)' : 'var(--text-secondary)',
-          borderBottom: idx === 0 ? '2px solid var(--accent)' : '2px solid transparent',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: 'pointer'
-        }}>
-          {tab}
-        </div>
-      ))}
+      {tabs.map((tab) => {
+        const isActive = tab === activeTab;
+        return (
+          <div 
+            key={tab} 
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: '8px 16px',
+              color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+              borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            {tab}
+          </div>
+        );
+      })}
     </div>
   );
 };

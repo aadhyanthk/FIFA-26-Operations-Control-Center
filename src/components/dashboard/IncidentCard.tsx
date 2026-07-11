@@ -1,5 +1,5 @@
 import React from 'react';
-import { StadiumEvent } from '../../simulation/EventEngine';
+import type { StadiumEvent } from '../../simulation/EventEngine';
 
 interface IncidentCardProps {
   incident: StadiumEvent;

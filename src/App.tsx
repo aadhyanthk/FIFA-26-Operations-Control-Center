@@ -3,6 +3,10 @@ import { TopBar } from './components/layout/TopBar';
 import { TabBar } from './components/layout/TabBar';
 import { StatusBar } from './components/layout/StatusBar';
 import { OverviewTab } from './components/tabs/OverviewTab';
+import { GatesTab } from './components/tabs/GatesTab';
+import { SecurityTab } from './components/tabs/SecurityTab';
+import { MedicalTab } from './components/tabs/MedicalTab';
+import { MaintenanceTab } from './components/tabs/MaintenanceTab';
 import { useStadiumStore } from './store/stadiumStore';
 import { useUIStore } from './store/uiStore';
 import { SimulationEngine } from './simulation/SimulationEngine';
@@ -64,9 +68,13 @@ function App() {
           overflowY: 'auto'
         }}>
           {activeTab === 'Overview' && <OverviewTab />}
-          {activeTab !== 'Overview' && (
+          {activeTab === 'Gates' && <GatesTab />}
+          {activeTab === 'Security' && <SecurityTab />}
+          {activeTab === 'Medical' && <MedicalTab />}
+          {activeTab === 'Maintenance' && <MaintenanceTab />}
+          {activeTab === 'Agent' && (
             <div style={{ color: 'var(--text-secondary)' }}>
-              {activeTab} content will go here...
+              Agent content will go here...
             </div>
           )}
         </div>
