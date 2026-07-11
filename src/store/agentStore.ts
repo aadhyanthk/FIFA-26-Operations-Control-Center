@@ -1,0 +1,43 @@
+import { create } from 'zustand';
+
+export interface PlanAction {
+  id: string;
+  tool: string;
+  params: Record<string, any>;
+  description: string;
+  status: 'pending' | 'executing' | 'done' | 'failed';
+}
+
+export interface ExecutionPlan {
+  id: string;
+  timestamp: number;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  title: string;
+  reasoning: string;
+  rootCause: string;
+  actions: PlanAction[];
+  estimatedImpact: string;
+  status: 'pending_approval' | 'approved' | 'rejected' | 'executing' | 'completed' | 'failed';
+  triggeringEvents: string[];
+}
+
+interface AgentState {
+  plans: ExecutionPlan[];
+  addPlan: (plan: ExecutionPlan) => void;
+  updatePlanStatus: (planId: string, status: ExecutionPlan['status']) => void;
+  setActionStatus: (actionId: string, status: PlanAction['status']) => void;
+}
+
+export const useAgentStore = create<AgentState>((set) => ({
+  plans: [],
+  addPlan: (plan) => set((state) => ({ plans: [plan, ...state.plans] })),
+  updatePlanStatus: (planId, status) => set((state) => ({
+    plans: state.plans.map(p => p.id === planId ? { ...p, status } : p)
+  })),
+  setActionStatus: (actionId, status) => set((state) => ({
+    plans: state.plans.map(p => ({
+      ...p,
+      actions: p.actions.map(a => a.id === actionId ? { ...a, status } : a)
+    }))
+  }))
+}));
