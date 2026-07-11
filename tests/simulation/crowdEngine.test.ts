@@ -18,7 +18,7 @@ describe('CrowdEngine', () => {
 
   it('should recalculate density correctly', () => {
     mockState.zones!['101'].currentOccupancy = 900;
-    const newState = engine.tick(mockState as StadiumState);
+    const newState = engine.tick(mockState as StadiumState, 1);
     expect(newState.zones!['101'].density).toBe(0.9);
   });
 });
