@@ -3,12 +3,22 @@ import type { StadiumState } from '../store/stadiumStore';
 export class GateEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const gates = { ...state.gates };
+    let transport = { ...state.transport } as any;
     let totalProcessed = 0;
 
     Object.keys(gates).forEach(key => {
       const gate = { ...gates[key] };
       
       if (!gate.isOpen) {
+        if (gate.queueLength > 0) {
+          // Crowd naturally leaves the closed gate to find an open one
+          const leaving = Math.min(gate.queueLength, 50 * deltaTime);
+          gate.queueLength -= leaving;
+          
+          // Re-add them to the pool so ArrivalEngine distributes them to open gates
+          transport.incomingPassengers = (transport.incomingPassengers || 0) + leaving;
+        }
+        gates[key] = gate;
         return;
       }
       
@@ -64,7 +74,7 @@ export class GateEngine {
 
     // We can accumulate processed people in a temporary field if we want to pass to CrowdEngine
     // For now, let's add `processedThisTick` to transport state just to bridge it
-    const transport = { ...state.transport, newlyEntered: totalProcessed } as any;
+    transport.newlyEntered = totalProcessed;
 
     return { gates, transport };
   }

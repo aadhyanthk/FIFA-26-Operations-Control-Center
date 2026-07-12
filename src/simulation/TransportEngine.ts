@@ -35,26 +35,38 @@ export class TransportEngine {
       transport.busDelays = 0;
     }
     
-    // Normal steady stream of arrivals (more closer to kickoff)
-    // simTime < 0 means before kickoff
-    if (state.simTime > -7200 && state.simTime < 0) {
-      // Base probability is 10%, goes up to 30% if incidents are active
-      let surgeProbability = totalActiveIncidents > 0 ? 0.30 : 0.10;
-      
-      // Taper off sharply 30 mins before kickoff (simTime > -1800)
-      if (state.simTime > -1800) {
-        surgeProbability *= (Math.abs(state.simTime) / 1800);
-      }
-      
-      if (Math.random() < surgeProbability) {
-        // If there's a transport incident, reduce incoming surge slightly but still burst
-        const surgeFactor = incidentDelay > 0 ? 0.5 : 1.0;
-        transport.incomingPassengers += Math.floor((Math.random() * 2000 + 1000) * surgeFactor);
-      }
-      
-      // Direct arrival spike from chaos of any incident
-      if (totalActiveIncidents > 0 && Math.random() < 0.2) {
-         transport.incomingPassengers += Math.floor(Math.random() * 300 * totalActiveIncidents);
+    // Realistic steady stream of arrivals based on time to kickoff
+    const t = state.simTime;
+    let baseRate = 0;
+    
+    if (t < -7200) {
+      baseRate = 0;
+    } else if (t < -5400) {
+      baseRate = 2;   // 2 hours to 1.5 hours out
+    } else if (t < -3600) {
+      baseRate = 5;   // 1.5 hours to 1 hour out
+    } else if (t < -1800) {
+      baseRate = 15;  // 1 hour to 30 mins out (Peak)
+    } else if (t < -900) {
+      baseRate = 10;  // 30 mins to 15 mins out
+    } else if (t <= 0) {
+      baseRate = 6;   // 15 mins to kickoff (just on time)
+    } else if (t < 1800) {
+      baseRate = 2;   // up to 30 mins after kickoff (latecomers)
+    }
+    
+    // Add some random noise to the base rate (+/- 20%)
+    if (baseRate > 0) {
+      const noise = 0.8 + Math.random() * 0.4;
+      const incidentFactor = totalActiveIncidents > 0 ? 1.2 : 1.0; // slight boost if things are chaotic
+      transport.incomingPassengers += Math.floor(baseRate * deltaTime * noise * incidentFactor);
+    }
+    
+    // Simulate scheduled trains/buses arriving (~every 5 minutes during the arrival window)
+    if (t > -7200 && t < 1800) {
+      const trainProbability = (1 / 300) * deltaTime;
+      if (Math.random() < trainProbability) {
+        transport.incomingPassengers += Math.floor(Math.random() * 300 + 200);
       }
     }
     
