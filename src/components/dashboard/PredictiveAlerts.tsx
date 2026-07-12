@@ -2,14 +2,18 @@ import React from 'react';
 import { useStadiumStore } from '../../store/stadiumStore';
 
 export const PredictiveAlerts: React.FC = () => {
-  const { gates, transport } = useStadiumStore();
+  const { gates, transport, incidents } = useStadiumStore();
 
   let alertMessage = null;
 
   // Simple heuristic for predictive alerts
   const highWaitGates = Object.values(gates).filter(g => g.averageWaitTime > 15);
+  const criticalIncidents = incidents.filter(i => i.status !== 'resolved' && (i.severity === 'critical' || i.severity === 'high'));
   
-  if (transport.trainDelays > 10) {
+  if (criticalIncidents.length > 0) {
+    const latest = criticalIncidents[0];
+    alertMessage = `Critical ${latest.type} event detected at ${latest.location}. Predicting cascading effects on nearby zones. Re-routing recommended.`;
+  } else if (transport.trainDelays > 10) {
     alertMessage = `Significant transport delays (${transport.trainDelays} mins) detected. Expect irregular crowd surges when resolved.`;
   } else if (highWaitGates.length > 0) {
     alertMessage = `Based on current arrival rates, Gate ${highWaitGates[0].id} queue is predicted to exceed 20 minutes wait time shortly.`;

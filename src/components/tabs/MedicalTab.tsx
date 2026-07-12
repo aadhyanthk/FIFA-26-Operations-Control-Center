@@ -31,7 +31,31 @@ export const MedicalTab: React.FC = () => {
                   <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: team.status === 'idle' ? 'var(--ok)' : 'var(--warning)' }}></div>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Unit {team.id.toUpperCase()}</span>
                 </div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{team.location}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{team.location}</span>
+                  <button
+                    onClick={() => {
+                      const newStatus = team.status === 'idle' ? 'busy' : 'idle';
+                      useStadiumStore.getState().updateState({
+                        teams: {
+                          ...useStadiumStore.getState().teams,
+                          [team.id]: { ...team, status: newStatus }
+                        }
+                      });
+                    }}
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: 'var(--accent)',
+                      border: '1px solid var(--accent)',
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '11px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {team.status === 'idle' ? 'Deploy' : 'Recall'}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -48,7 +72,7 @@ export const MedicalTab: React.FC = () => {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
             {medicalIncidents.map(incident => (
-              <IncidentCard key={incident.id} event={incident} />
+              <IncidentCard key={incident.id} incident={incident} onClick={() => {}} />
             ))}
           </div>
         )}

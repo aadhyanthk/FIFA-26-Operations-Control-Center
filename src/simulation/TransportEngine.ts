@@ -27,8 +27,10 @@ export class TransportEngine {
     // simTime < 0 means before kickoff
     if (state.simTime > -7200 && state.simTime < 0) {
       // 2 hours before kickoff: peak arrivals around -30 min
-      if (Math.random() < 0.2) {
-        transport.incomingPassengers += 10;
+      // 2 hours before kickoff: peak arrivals
+      if (Math.random() < 0.3) {
+        // Generate realistic surges (100 - 500 people per tick)
+        transport.incomingPassengers += Math.floor(Math.random() * 400) + 100;
       }
     }
     

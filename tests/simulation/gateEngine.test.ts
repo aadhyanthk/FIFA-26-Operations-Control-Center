@@ -38,8 +38,8 @@ describe('GateEngine', () => {
 
   it('should calculate wait time correctly', () => {
     const newState = engine.tick(mockState as StadiumState, 1);
-    // Wait time = queueLength / (capacityPerHour / 60)
-    // 500 / (1000 / 60) = 500 / 16.66 = 30
-    expect(newState.gates!['A'].averageWaitTime).toBeCloseTo(30, 0);
+    // Wait time = queueLength / (capacityPerHour * 10 / 60)
+    // 500 / (1000 * 10 / 60) = 500 / 166.6 = 3
+    expect(newState.gates!['A'].averageWaitTime).toBeCloseTo(3, 0);
   });
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { StadiumEvent } from '../../simulation/EventEngine';
+import { useStadiumStore } from '../../store/stadiumStore';
 
 interface IncidentCardProps {
   incident: StadiumEvent;
@@ -43,8 +44,30 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onClick })
         </span>
       </div>
       
-      <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-        {incident.location} • {incident.type}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+          {incident.location} • {incident.type}
+        </div>
+        
+        {incident.status !== 'resolved' && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              useStadiumStore.getState().resolveIncident(incident.id);
+            }}
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
+              padding: '2px 8px',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '11px',
+              cursor: 'pointer'
+            }}
+          >
+            Resolve
+          </button>
+        )}
       </div>
     </div>
   );

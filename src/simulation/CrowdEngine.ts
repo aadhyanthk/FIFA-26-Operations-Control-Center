@@ -9,9 +9,9 @@ export class CrowdEngine {
     // Distribute newly entered people to concourse zones
     const concourseKeys = Object.keys(zones).filter(k => k.startsWith('concourse'));
     if (newlyEntered > 0 && concourseKeys.length > 0) {
-      const perConcourse = newlyEntered / concourseKeys.length;
+      const perConcourse = Math.floor(newlyEntered / concourseKeys.length);
       concourseKeys.forEach(k => {
-        zones[k].currentOccupancy += perConcourse;
+        zones[k].currentOccupancy = Math.floor(zones[k].currentOccupancy + perConcourse);
       });
     }
 
@@ -26,6 +26,7 @@ export class CrowdEngine {
          // Diffusion logic would go here
       }
       
+      zone.currentOccupancy = Math.floor(zone.currentOccupancy);
       zone.density = zone.currentOccupancy / zone.maxCapacity;
     });
 
