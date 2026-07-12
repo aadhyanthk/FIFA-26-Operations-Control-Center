@@ -8,7 +8,7 @@ interface IncidentCardProps {
 }
 
 export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onClick }) => {
-  const isCritical = incident.severity === 'critical';
+  const isCritical = incident.severity === 'critical' && incident.status !== 'resolved';
   
   return (
     <div 

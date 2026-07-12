@@ -12,11 +12,12 @@ export const StatusBar: React.FC = () => {
     
     const h = Math.floor(currentSeconds / 3600) % 24;
     const m = Math.floor((currentSeconds % 3600) / 60);
+    const s = Math.floor(currentSeconds % 60);
     
     const absMin = Math.floor(Math.abs(time) / 60);
     const tString = time < 0 ? `T-${absMin}m` : `T+${absMin}m`;
     
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} (${tString})`;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} (${tString})`;
   };
 
   return (

@@ -20,19 +20,19 @@ export const OverviewTab: React.FC = () => {
       height: '100%'
     }}>
       {/* Left Column */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', minHeight: 0 }}>
         
         {/* Top Metrics Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-md)' }}>
           <MetricCard 
             title="Total Inside" 
-            value={totalOccupancy} 
+            value={Math.round(totalOccupancy)} 
             trend={2.4} 
             status={totalOccupancy / totalCapacity > 0.9 ? 'warning' : 'ok'} 
           />
           <MetricCard 
             title="Total Outside Queue" 
-            value={totalQueue} 
+            value={Math.round(totalQueue)} 
             trend={-1.2} 
             status={totalQueue > 2000 ? 'warning' : 'ok'} 
           />
@@ -57,7 +57,7 @@ export const OverviewTab: React.FC = () => {
       </div>
 
       {/* Right Column */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', minHeight: 0 }}>
         <PredictiveAlerts />
         
         <div style={{ flex: 1, minHeight: 0 }}>

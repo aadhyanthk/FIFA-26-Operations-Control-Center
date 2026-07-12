@@ -39,7 +39,13 @@ export class TransportEngine {
     // simTime < 0 means before kickoff
     if (state.simTime > -7200 && state.simTime < 0) {
       // Base probability is 10%, goes up to 30% if incidents are active
-      const surgeProbability = totalActiveIncidents > 0 ? 0.30 : 0.10;
+      let surgeProbability = totalActiveIncidents > 0 ? 0.30 : 0.10;
+      
+      // Taper off sharply 30 mins before kickoff (simTime > -1800)
+      if (state.simTime > -1800) {
+        surgeProbability *= (Math.abs(state.simTime) / 1800);
+      }
+      
       if (Math.random() < surgeProbability) {
         // If there's a transport incident, reduce incoming surge slightly but still burst
         const surgeFactor = incidentDelay > 0 ? 0.5 : 1.0;

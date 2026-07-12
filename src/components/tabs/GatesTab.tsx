@@ -23,15 +23,38 @@ export const GatesTab: React.FC = () => {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
               <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Gate {gate.id}</h3>
-              <div style={{ 
-                padding: '4px 8px', 
-                borderRadius: 'var(--radius-sm)', 
-                backgroundColor: gate.isOpen ? 'var(--ok-bg)' : 'var(--critical-bg)',
-                color: gate.isOpen ? 'var(--ok)' : 'var(--critical)',
-                fontSize: '12px',
-                fontWeight: 600
-              }}>
-                {gate.isOpen ? 'OPEN' : 'CLOSED'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <div style={{ 
+                  padding: '4px 8px', 
+                  borderRadius: 'var(--radius-sm)', 
+                  backgroundColor: gate.isOpen ? 'var(--ok-bg)' : 'var(--critical-bg)',
+                  color: gate.isOpen ? 'var(--ok)' : 'var(--critical)',
+                  fontSize: '12px',
+                  fontWeight: 600
+                }}>
+                  {gate.isOpen ? 'OPEN' : 'CLOSED'}
+                </div>
+                <button
+                  onClick={() => {
+                    useStadiumStore.getState().updateState({
+                      gates: {
+                        ...useStadiumStore.getState().gates,
+                        [gate.id]: { ...gate, isOpen: !gate.isOpen }
+                      }
+                    });
+                  }}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-primary)',
+                    padding: '2px 8px',
+                    borderRadius: 'var(--radius-sm)',
+                    cursor: 'pointer',
+                    fontSize: '11px'
+                  }}
+                >
+                  Toggle
+                </button>
               </div>
             </div>
 
