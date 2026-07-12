@@ -70,6 +70,20 @@ export class TransportEngine {
       }
     }
     
+    // Process dispersing crowds (people who left a closed gate and are walking to another one)
+    if (transport.dispersingCrowds && transport.dispersingCrowds.length > 0) {
+      const remainingCrowds: { amount: number; timeRemaining: number }[] = [];
+      transport.dispersingCrowds.forEach(crowd => {
+        crowd.timeRemaining -= deltaTime;
+        if (crowd.timeRemaining <= 0) {
+          transport.incomingPassengers += crowd.amount;
+        } else {
+          remainingCrowds.push(crowd);
+        }
+      });
+      transport.dispersingCrowds = remainingCrowds;
+    }
+    
     return { transport };
   }
 }

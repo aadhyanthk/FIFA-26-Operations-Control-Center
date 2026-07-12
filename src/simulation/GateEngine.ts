@@ -12,11 +12,18 @@ export class GateEngine {
       if (!gate.isOpen) {
         if (gate.queueLength > 0) {
           // Crowd naturally leaves the closed gate to find an open one
-          const leaving = Math.min(gate.queueLength, 50 * deltaTime);
+          // Dispersal rate depends on crowd size (5% per second, clamped between 5 and 500)
+          const dispersalRate = Math.max(5, Math.min(500, gate.queueLength * 0.05));
+          const leaving = Math.min(gate.queueLength, dispersalRate * deltaTime);
           gate.queueLength -= leaving;
           
-          // Re-add them to the pool so ArrivalEngine distributes them to open gates
-          transport.incomingPassengers = (transport.incomingPassengers || 0) + leaving;
+          // Add them to the transit delay pool (delay of 120-300 seconds)
+          if (leaving > 0) {
+            transport.dispersingCrowds = [
+              ...(transport.dispersingCrowds || []),
+              { amount: leaving, timeRemaining: 120 + Math.random() * 180 }
+            ];
+          }
         }
         gates[key] = gate;
         return;
@@ -46,14 +53,17 @@ export class GateEngine {
           i => i.status !== 'resolved' && i.location === `Gate ${key}`
         );
         if (activeGateIncidents.length > 0) {
-          scannerFactor *= 0.50; // 50% capacity reduction per active incident (could be clamped, but this is fine)
+          scannerFactor *= 0.50; // 50% capacity reduction per active incident
         }
       }
 
       effectiveCapacityPerHour *= scannerFactor;
-      // Multiply by a factor of 3 to simulate real-world surges (as 1 tick = 1 second is slow)
-      // Earlier this was 10, but that drained queues too fast.
-      const surgeMultiplier = 3;
+      
+      // Pressure multiplier: Staff process people up to 2x faster if the queue is massive
+      const pressureMultiplier = 1 + Math.min(1.0, gate.queueLength / 2000);
+      
+      // Multiply by a factor of 3 to simulate real-world surges
+      const surgeMultiplier = 3 * pressureMultiplier;
       const capacityPerSecond = (effectiveCapacityPerHour * surgeMultiplier) / 3600;
       
       // Number of people processed this tick

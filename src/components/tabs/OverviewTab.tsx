@@ -6,11 +6,12 @@ import { PredictiveAlerts } from '../dashboard/PredictiveAlerts';
 import { useStadiumStore } from '../../store/stadiumStore';
 
 export const OverviewTab: React.FC = () => {
-  const { gates, zones } = useStadiumStore();
+  const { gates, zones, transport, historicalMetrics } = useStadiumStore();
 
   const totalCapacity = Object.values(zones).reduce((acc, z) => acc + z.maxCapacity, 0);
   const totalOccupancy = Object.values(zones).reduce((acc, z) => acc + z.currentOccupancy, 0);
   const totalQueue = Object.values(gates).reduce((acc, g) => acc + g.queueLength, 0);
+  const dispersingCrowdsTotal = transport.dispersingCrowds?.reduce((acc, c) => acc + c.amount, 0) || 0;
 
   return (
     <div style={{
@@ -27,13 +28,13 @@ export const OverviewTab: React.FC = () => {
           <MetricCard 
             title="Total Inside" 
             value={Math.round(totalOccupancy)} 
-            trend={2.4} 
+            trend={historicalMetrics?.occupancyTrend || 0} 
             status={totalOccupancy / totalCapacity > 0.9 ? 'warning' : 'ok'} 
           />
           <MetricCard 
             title="Total Outside Queue" 
             value={Math.round(totalQueue)} 
-            trend={-1.2} 
+            trend={historicalMetrics?.queueTrend || 0} 
             status={totalQueue > 2000 ? 'warning' : 'ok'} 
           />
           <MetricCard 
@@ -46,6 +47,32 @@ export const OverviewTab: React.FC = () => {
             value={42} 
             format="number"
             status="ok" 
+          />
+        </div>
+
+        {/* Transport Metrics Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-md)' }}>
+          <MetricCard 
+            title="Incoming Fan Stream" 
+            value={transport.incomingPassengers} 
+            status="ok" 
+          />
+          <MetricCard 
+            title="In-Transit (Dispersed)" 
+            value={Math.round(dispersingCrowdsTotal)} 
+            status={dispersingCrowdsTotal > 1000 ? 'warning' : 'ok'} 
+          />
+          <MetricCard 
+            title="Train Delays" 
+            value={transport.trainDelays} 
+            format="number"
+            status={transport.trainDelays > 15 ? 'warning' : 'ok'} 
+          />
+          <MetricCard 
+            title="Bus Delays" 
+            value={transport.busDelays} 
+            format="number"
+            status={transport.busDelays > 15 ? 'warning' : 'ok'} 
           />
         </div>
 

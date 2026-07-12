@@ -13,6 +13,7 @@ export interface TransportState {
   trainDelays: number; // minutes
   busDelays: number; // minutes
   incomingPassengers: number;
+  dispersingCrowds: { amount: number; timeRemaining: number }[];
 }
 
 export interface GateState {
@@ -58,6 +59,15 @@ export interface StadiumState {
   // Events
   incidents: StadiumEvent[];
   
+  // Historical Metrics (for dashboard trends)
+  historicalMetrics: {
+    occupancyTrend: number;
+    queueTrend: number;
+    lastOccupancy: number;
+    lastQueue: number;
+    lastTrendUpdate: number;
+  };
+  
   // Actions
   setSpeed: (speed: 1 | 2 | 5 | 10) => void;
   togglePause: () => void;
@@ -84,16 +94,17 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   transport: {
     trainDelays: 0,
     busDelays: 0,
-    incomingPassengers: 0
+    incomingPassengers: 0,
+    dispersingCrowds: []
   },
   
   gates: {
-    'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'B': { id: 'B', isOpen: true, capacityPerHour: 800, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'C': { id: 'C', isOpen: true, capacityPerHour: 1200, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'D': { id: 'D', isOpen: true, capacityPerHour: 1000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'E': { id: 'E', isOpen: true, capacityPerHour: 800, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'F': { id: 'F', isOpen: true, capacityPerHour: 1200, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'A': { id: 'A', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'D': { id: 'D', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'E': { id: 'E', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
   },
   
   zones: stadiumLayout.zones.reduce((acc, z) => {
@@ -117,6 +128,14 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   },
   
   incidents: [],
+  
+  historicalMetrics: {
+    occupancyTrend: 0,
+    queueTrend: 0,
+    lastOccupancy: 0,
+    lastQueue: 0,
+    lastTrendUpdate: -7200
+  },
   
   setSpeed: (speed) => set({ speed }),
   togglePause: () => set((state) => ({ isPaused: !state.isPaused })),
