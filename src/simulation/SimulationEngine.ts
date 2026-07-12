@@ -26,7 +26,8 @@ export class SimulationEngine {
 
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     return this.engines.reduce((acc, engine) => {
-      return engine.tick({ ...state, ...acc }, deltaTime);
+      const result = engine.tick({ ...state, ...acc }, deltaTime);
+      return { ...acc, ...result };
     }, {} as Partial<StadiumState>);
   }
 }

@@ -88,11 +88,11 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   },
   
   gates: {
-    'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 0, activeLanes: 3, averageWaitTime: 0, scannerStatus: 'operational' },
-    'B': { id: 'B', isOpen: true, capacityPerHour: 800, queueLength: 0, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational' },
+    'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'B': { id: 'B', isOpen: true, capacityPerHour: 800, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
     'C': { id: 'C', isOpen: true, capacityPerHour: 1200, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'D': { id: 'D', isOpen: true, capacityPerHour: 1000, queueLength: 0, activeLanes: 3, averageWaitTime: 0, scannerStatus: 'operational' },
-    'E': { id: 'E', isOpen: true, capacityPerHour: 800, queueLength: 0, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational' },
+    'D': { id: 'D', isOpen: true, capacityPerHour: 1000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'E': { id: 'E', isOpen: true, capacityPerHour: 800, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
     'F': { id: 'F', isOpen: true, capacityPerHour: 1200, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
   },
   

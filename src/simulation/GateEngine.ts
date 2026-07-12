@@ -33,7 +33,7 @@ export class GateEngine {
       // Incidents reduce throughput heavily
       if (state.incidents && state.incidents.length > 0) {
         const activeGateIncidents = state.incidents.filter(
-          i => i.status !== 'resolved' && (i.type === 'security' || i.type === 'medical') && i.location === `Gate ${key}`
+          i => i.status !== 'resolved' && i.location === `Gate ${key}`
         );
         if (activeGateIncidents.length > 0) {
           scannerFactor *= 0.50; // 50% capacity reduction per active incident (could be clamped, but this is fine)

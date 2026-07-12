@@ -9,6 +9,7 @@ export const PredictiveAlerts: React.FC = () => {
   // Simple heuristic for predictive alerts
   const highWaitGates = Object.values(gates).filter(g => g.averageWaitTime > 15);
   const criticalIncidents = incidents.filter(i => i.status !== 'resolved' && (i.severity === 'critical' || i.severity === 'high'));
+  const unresolvedIncidents = incidents.filter(i => i.status !== 'resolved');
   
   if (criticalIncidents.length > 0) {
     const latest = criticalIncidents[0];
@@ -17,6 +18,9 @@ export const PredictiveAlerts: React.FC = () => {
     alertMessage = `Significant transport delays (${transport.trainDelays} mins) detected. Expect irregular crowd surges when resolved.`;
   } else if (highWaitGates.length > 0) {
     alertMessage = `Based on current arrival rates, Gate ${highWaitGates[0].id} queue is predicted to exceed 20 minutes wait time shortly.`;
+  } else if (unresolvedIncidents.length > 0) {
+    const latest = unresolvedIncidents[0];
+    alertMessage = `Active ${latest.severity} ${latest.type} event at ${latest.location}. Anticipate localized friction and adjust resource allocation if needed.`;
   }
 
   if (!alertMessage) {
