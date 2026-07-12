@@ -30,9 +30,21 @@ export class GateEngine {
         scannerFactor = 0.50;
       }
 
+      // Incidents reduce throughput heavily
+      if (state.incidents && state.incidents.length > 0) {
+        const activeGateIncidents = state.incidents.filter(
+          i => i.status !== 'resolved' && (i.type === 'security' || i.type === 'medical') && i.location === `Gate ${key}`
+        );
+        if (activeGateIncidents.length > 0) {
+          scannerFactor *= 0.50; // 50% capacity reduction per active incident (could be clamped, but this is fine)
+        }
+      }
+
       effectiveCapacityPerHour *= scannerFactor;
-      // Multiply by a factor of 10 to simulate real-world surges (as 1 tick = 1 second is slow)
-      const capacityPerSecond = (effectiveCapacityPerHour * 10) / 3600;
+      // Multiply by a factor of 3 to simulate real-world surges (as 1 tick = 1 second is slow)
+      // Earlier this was 10, but that drained queues too fast.
+      const surgeMultiplier = 3;
+      const capacityPerSecond = (effectiveCapacityPerHour * surgeMultiplier) / 3600;
       
       // Number of people processed this tick
       const processed = Math.min(gate.queueLength, capacityPerSecond * deltaTime);
@@ -42,7 +54,7 @@ export class GateEngine {
       
       // Wait time in minutes: (queue length / surge effective capacity per hour) * 60
       if (effectiveCapacityPerHour > 0) {
-        gate.averageWaitTime = (gate.queueLength / (effectiveCapacityPerHour * 10)) * 60;
+        gate.averageWaitTime = (gate.queueLength / (effectiveCapacityPerHour * surgeMultiplier)) * 60;
       } else {
         gate.averageWaitTime = gate.queueLength > 0 ? 999 : 0;
       }

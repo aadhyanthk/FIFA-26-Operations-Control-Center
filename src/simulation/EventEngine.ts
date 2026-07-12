@@ -1,7 +1,7 @@
 export interface StadiumEvent {
   id: string;
   timestamp: number;
-  type: 'crowd' | 'medical' | 'security' | 'maintenance' | 'weather' | 'transport';
+  type: 'crowd' | 'medical' | 'security' | 'maintenance' | 'weather' | 'transport' | 'cleaning';
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   description: string;
