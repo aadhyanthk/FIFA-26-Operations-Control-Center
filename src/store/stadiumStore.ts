@@ -24,6 +24,7 @@ export interface GateState {
   activeLanes: number;
   averageWaitTime: number; // minutes
   scannerStatus: 'operational' | 'degraded' | 'failed';
+  scannerHealth: number; // 0-100
 }
 
 export interface ZoneState {
@@ -102,12 +103,12 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   },
   
   gates: {
-    'A': { id: 'A', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'D': { id: 'D', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'E': { id: 'E', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
-    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational' },
+    'A': { id: 'A', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
+    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
+    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
+    'D': { id: 'D', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
+    'E': { id: 'E', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
+    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
   },
   
   zones: stadiumLayout.zones.reduce((acc, z) => {
@@ -124,6 +125,10 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   teams: {
     'sec-1': { id: 'sec-1', department: 'security', location: 'Gate A', status: 'idle' },
     'sec-2': { id: 'sec-2', department: 'security', location: 'Section 101-104', status: 'idle' },
+    'sec-3': { id: 'sec-3', department: 'security', location: 'Gate C', status: 'idle' },
+    'sec-4': { id: 'sec-4', department: 'security', location: 'East Concourse', status: 'idle' },
+    'sec-5': { id: 'sec-5', department: 'security', location: 'Gate F', status: 'idle' },
+    'sec-6': { id: 'sec-6', department: 'security', location: 'West Concourse', status: 'idle' },
     'med-1': { id: 'med-1', department: 'medical', location: 'East Concourse', status: 'idle' },
     'med-2': { id: 'med-2', department: 'medical', location: 'West Concourse', status: 'idle' },
     'med-3': { id: 'med-3', department: 'medical', location: 'North Concourse', status: 'idle' },
