@@ -50,32 +50,6 @@ export const OverviewTab: React.FC = () => {
           />
         </div>
 
-        {/* Transport Metrics Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-md)' }}>
-          <MetricCard 
-            title="Incoming Fan Stream" 
-            value={transport.incomingPassengers} 
-            status="ok" 
-          />
-          <MetricCard 
-            title="In-Transit (Dispersed)" 
-            value={Math.round(dispersingCrowdsTotal)} 
-            status={dispersingCrowdsTotal > 1000 ? 'warning' : 'ok'} 
-          />
-          <MetricCard 
-            title="Train Delays" 
-            value={transport.trainDelays} 
-            format="number"
-            status={transport.trainDelays > 15 ? 'warning' : 'ok'} 
-          />
-          <MetricCard 
-            title="Bus Delays" 
-            value={transport.busDelays} 
-            format="number"
-            status={transport.busDelays > 15 ? 'warning' : 'ok'} 
-          />
-        </div>
-
         {/* Map */}
         <div style={{ flex: 1, minHeight: 0 }}>
           <StadiumMap />
