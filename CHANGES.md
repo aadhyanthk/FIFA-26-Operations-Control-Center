@@ -79,7 +79,7 @@ Currently the sim only models pre-kickoff arrivals. Add all phases from PROJECT.
 | Full Time | T+6300 | Mass exit begins. Gates reverse to outflow mode. Transport coordination needed. |
 | Exodus | T+6300 to T+10800 | Gradual emptying. Cleaning sweep. Shift handover window. |
 
-### 1.4 EventEngine Expansion
+### [x] 1.4 EventEngine Expansion
 Currently only generates gate overcrowding and zone density events. Add:
 - Medical incidents (from MedicalEngine probabilities)
 - Security incidents (from SecurityEngine probabilities)
@@ -319,7 +319,7 @@ Pulsing dot component for live status:
 Execute in this order. Each phase builds on the previous one.
 
 1. [x] **CSS Refactor** (Phase 2.1) — Foundation for everything else 
-2. **Simulation Engines** (Phase 1.1-1.4) — The sim must be believable first
+2. [x] **Simulation Engines** (Phase 1.1-1.4) — The sim must be believable first
 3. **Stadium Map** (Phase 2.2) — The visual centerpiece
 4. **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
 5. **IncidentFeed** (Phase 2.5) — Core operational UI
