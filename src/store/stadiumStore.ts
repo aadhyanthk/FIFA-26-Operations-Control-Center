@@ -33,6 +33,9 @@ export interface ZoneState {
   currentOccupancy: number;
   maxCapacity: number;
   density: number; // 0 to 1
+  litterLevel: number; // 0 to 1
+  restroomStatus: 'clean' | 'needs_attention' | 'critical';
+  restroomUsage: number;
 }
 
 export interface TeamState {
@@ -117,7 +120,10 @@ export const useStadiumStore = create<StadiumState>((set) => ({
       name: z.name,
       currentOccupancy: 0,
       maxCapacity: z.maxCapacity,
-      density: 0
+      density: 0,
+      litterLevel: 0,
+      restroomStatus: 'clean',
+      restroomUsage: 0
     };
     return acc;
   }, {} as Record<string, ZoneState>),
@@ -135,6 +141,9 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'med-4': { id: 'med-4', department: 'medical', location: 'South Concourse', status: 'idle' },
     'mnt-1': { id: 'mnt-1', department: 'maintenance', location: 'Gate C', status: 'idle' },
     'cln-1': { id: 'cln-1', department: 'cleaning', location: 'South Concourse', status: 'idle' },
+    'cln-2': { id: 'cln-2', department: 'cleaning', location: 'North Concourse', status: 'idle' },
+    'cln-3': { id: 'cln-3', department: 'cleaning', location: 'East Concourse', status: 'idle' },
+    'cln-4': { id: 'cln-4', department: 'cleaning', location: 'West Concourse', status: 'idle' },
   },
   
   incidents: [],

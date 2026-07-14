@@ -29,7 +29,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
 
 ### 1.1 Complete the Placeholder Engines
 
-#### `MedicalEngine.ts` — Full Implementation
+#### [x] `MedicalEngine.ts` — Full Implementation
 - Track 4 medical teams (expand from 2) with individual cooldown timers
 - Generate medical incidents probabilistically: base rate ~2/hour, modified by:
   - Temperature > 35°C → +40% heat exhaustion risk
@@ -40,7 +40,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
 - Track response times per team (dispatch tick → arrival tick based on distance)
 - Auto-resolve: deployed team at location resolves in 60-300 seconds depending on severity
 
-#### `SecurityEngine.ts` — Full Implementation
+#### [x] `SecurityEngine.ts` — Full Implementation
 - Track 6 security teams (expand from 2) with zone assignments
 - Generate security incidents: base rate ~1/hour, modified by:
   - Match tension (late game, close score) → +30%
