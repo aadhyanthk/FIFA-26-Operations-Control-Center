@@ -32,23 +32,44 @@ export class SimulationEngine {
 
     // Update historical metrics for dashboard trends every 60 sim seconds
     const currentState = { ...state, ...finalState };
-    if (currentState.historicalMetrics && (currentState.simTime - currentState.historicalMetrics.lastTrendUpdate >= 60)) {
-      const totalOccupancy = Object.values(currentState.zones).reduce((acc, z) => acc + z.currentOccupancy, 0);
-      const totalQueue = Object.values(currentState.gates).reduce((acc, g) => acc + g.queueLength, 0);
-      
-      const lastOccupancy = Math.max(1, currentState.historicalMetrics.lastOccupancy);
-      const lastQueue = Math.max(1, currentState.historicalMetrics.lastQueue);
-      
-      const occupancyTrend = Number((((totalOccupancy - lastOccupancy) / lastOccupancy) * 100).toFixed(1));
-      const queueTrend = Number((((totalQueue - lastQueue) / lastQueue) * 100).toFixed(1));
+    
+    // Add check to initialize if missing
+    if (!currentState.historicalMetrics.timeline) {
+       currentState.historicalMetrics.timeline = [];
+       currentState.historicalMetrics.lastTimelineUpdate = -7200;
+    }
 
-      finalState.historicalMetrics = {
-        occupancyTrend,
-        queueTrend,
-        lastOccupancy: totalOccupancy,
-        lastQueue: totalQueue,
-        lastTrendUpdate: currentState.simTime
-      };
+    const totalOccupancy = Object.values(currentState.zones).reduce((acc, z) => acc + z.currentOccupancy, 0);
+    const totalQueue = Object.values(currentState.gates).reduce((acc, g) => acc + g.queueLength, 0);
+    const activeIncidents = currentState.incidents.filter(i => i.status !== 'resolved').length;
+    const teamsAvailable = Object.values(currentState.teams).filter(t => t.status === 'idle' && (t.department === 'medical' || t.department === 'security')).length;
+
+    const newMetrics = { ...currentState.historicalMetrics };
+    let metricsChanged = false;
+
+    // Timeline update (every 10 seconds for sparklines, keep last 5 mins = 300s = 30 points max)
+    if (currentState.simTime - newMetrics.lastTimelineUpdate >= 10) {
+       const newPoint = { time: currentState.simTime, occupancy: totalOccupancy, queue: totalQueue, incidents: activeIncidents, teamsAvailable };
+       newMetrics.timeline = [...newMetrics.timeline.slice(-30), newPoint];
+       newMetrics.lastTimelineUpdate = currentState.simTime;
+       metricsChanged = true;
+    }
+
+    // Trend update (every 60 seconds)
+    if (currentState.simTime - newMetrics.lastTrendUpdate >= 60) {
+      const lastOccupancy = Math.max(1, newMetrics.lastOccupancy);
+      const lastQueue = Math.max(1, newMetrics.lastQueue);
+      
+      newMetrics.occupancyTrend = Number((((totalOccupancy - lastOccupancy) / lastOccupancy) * 100).toFixed(1));
+      newMetrics.queueTrend = Number((((totalQueue - lastQueue) / lastQueue) * 100).toFixed(1));
+      newMetrics.lastOccupancy = totalOccupancy;
+      newMetrics.lastQueue = totalQueue;
+      newMetrics.lastTrendUpdate = currentState.simTime;
+      metricsChanged = true;
+    }
+
+    if (metricsChanged) {
+      finalState.historicalMetrics = newMetrics;
     }
 
     return finalState;

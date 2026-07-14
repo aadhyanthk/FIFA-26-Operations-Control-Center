@@ -115,7 +115,7 @@ CSS class categories to create:
 - `.feed`, `.feed-item`
 - `.mono` (already exists, expand)
 
-### 2.2 Stadium Map — Complete Redesign
+### [x] 2.2 Stadium Map — Complete Redesign
 
 The current map is circles and rectangles on a plain canvas. It needs to look like an actual stadium schematic:
 
@@ -320,7 +320,7 @@ Execute in this order. Each phase builds on the previous one.
 
 1. [x] **CSS Refactor** (Phase 2.1) — Foundation for everything else 
 2. [x] **Simulation Engines** (Phase 1.1-1.4) — The sim must be believable first
-3. **Stadium Map** (Phase 2.2) — The visual centerpiece
+3. [x] **Stadium Map** (Phase 2.2) — The visual centerpiece
 4. **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
 5. **IncidentFeed** (Phase 2.5) — Core operational UI
 6. **Gates Tab** (Phase 2.7) — Most-used operational tab

@@ -92,6 +92,8 @@ export interface StadiumState {
     lastOccupancy: number;
     lastQueue: number;
     lastTrendUpdate: number;
+    lastTimelineUpdate: number;
+    timeline: { time: number; occupancy: number; queue: number; incidents: number; teamsAvailable: number }[];
   };
   
   // Actions
@@ -187,7 +189,9 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     queueTrend: 0,
     lastOccupancy: 0,
     lastQueue: 0,
-    lastTrendUpdate: -7200
+    lastTrendUpdate: -7200,
+    lastTimelineUpdate: -7200,
+    timeline: []
   },
   
   setSpeed: (speed) => set({ speed }),

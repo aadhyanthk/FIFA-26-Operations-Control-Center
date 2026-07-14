@@ -9,8 +9,34 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, format 
   const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
-    // Simple transition for now, can be improved with digit flip animation
-    setDisplayValue(value);
+    let startTimestamp: number | null = null;
+    const duration = 600; // ms
+    const startValue = displayValue;
+    const endValue = value;
+
+    if (startValue === endValue) return;
+
+    let frameId: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      
+      // easeOutExpo
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      setDisplayValue(startValue + (endValue - startValue) * easeProgress);
+
+      if (progress < 1) {
+        frameId = window.requestAnimationFrame(step);
+      } else {
+        setDisplayValue(endValue);
+      }
+    };
+
+    frameId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(frameId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   let formatted = displayValue.toString();
@@ -21,7 +47,7 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, format 
   } else if (format === 'percent') {
     formatted = `${Math.round(displayValue * 100)}%`;
   } else {
-    formatted = displayValue.toLocaleString();
+    formatted = Math.round(displayValue).toLocaleString();
   }
 
   return (

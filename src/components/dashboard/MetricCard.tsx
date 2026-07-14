@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnimatedCounter } from '../common/AnimatedCounter';
+import { Sparkline } from '../common/Sparkline';
 
 interface MetricCardProps {
   title: string;
@@ -7,13 +8,18 @@ interface MetricCardProps {
   format?: 'number' | 'time' | 'percent';
   trend?: number; // percentage change
   status?: 'ok' | 'warning' | 'critical';
+  progress?: number; // 0 to 100
+  history?: any[];
+  dataKey?: string;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({ 
-  title, value, format = 'number', trend, status = 'ok' 
+  title, value, format = 'number', trend, status = 'ok', progress, history, dataKey
 }) => {
+  const statusColor = `var(--${status})`;
+
   return (
-    <div className="card flex-col gap-sm">
+    <div className="card flex-col gap-sm" style={{ borderColor: status !== 'ok' ? statusColor : undefined }}>
       <div className="text-secondary text-xs font-medium uppercase tracking-wider">
         {title}
       </div>
@@ -28,17 +34,25 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         )}
       </div>
 
-      <div className="w-full mt-xs" style={{ 
-        height: '4px', 
-        backgroundColor: 'var(--bg-tertiary)',
-        borderRadius: '2px',
-        overflow: 'hidden'
-      }}>
-        <div className="h-full" style={{
-          width: '70%',
-          backgroundColor: `var(--${status})`
-        }} />
-      </div>
+      {history && dataKey && (
+        <div className="mt-xs">
+          <Sparkline data={history} dataKey={dataKey} color={statusColor} />
+        </div>
+      )}
+
+      {progress !== undefined && (
+        <div className="w-full mt-xs" style={{ 
+          height: '4px', 
+          backgroundColor: 'var(--bg-tertiary)',
+          borderRadius: '2px',
+          overflow: 'hidden'
+        }}>
+          <div className="h-full transition-all duration-300" style={{
+            width: `${Math.min(100, Math.max(0, progress))}%`,
+            backgroundColor: statusColor
+          }} />
+        </div>
+      )}
     </div>
   );
 };
