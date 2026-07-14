@@ -105,7 +105,7 @@ export const GatesTab: React.FC = () => {
               <div className="flex-row justify-between items-center">
                 <span>Active Lanes</span>
                 <div className="flex-row gap-xs">
-                  {[1, 2, 3, 4].map(lane => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(lane => (
                     <div 
                       key={lane}
                       style={{

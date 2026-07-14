@@ -74,7 +74,7 @@ export interface StadiumState {
   speed: 1 | 2 | 5 | 10;
   isPaused: boolean;
   activeMatchPhase: string;
-  
+
   // Subsystem states
   weather: WeatherState;
   transport: TransportState;
@@ -82,10 +82,10 @@ export interface StadiumState {
   zones: Record<string, ZoneState>;
   teams: Record<string, TeamState>;
   foodCourts: Record<string, FoodCourtState>;
-  
+
   // Events
   incidents: StadiumEvent[];
-  
+
   // Historical Metrics (for dashboard trends)
   historicalMetrics: {
     occupancyTrend: number;
@@ -94,21 +94,21 @@ export interface StadiumState {
     lastQueue: number;
     lastTrendUpdate: number;
     lastTimelineUpdate: number;
-    timeline: { 
-      time: number; 
-      occupancy: number; 
-      queue: number; 
-      incidents: number; 
+    timeline: {
+      time: number;
+      occupancy: number;
+      queue: number;
+      incidents: number;
       teamsAvailable: number;
       gatesQueue: Record<string, number>;
     }[];
   };
-  
+
   // Actions
   setSpeed: (speed: 1 | 2 | 5 | 10) => void;
   togglePause: () => void;
   tick: (deltaTime: number) => void;
-  
+
   // Data actions
   updateState: (partial: Partial<StadiumState>) => void;
   addIncident: (event: StadiumEvent) => void;
@@ -121,7 +121,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   speed: 1,
   isPaused: true,
   activeMatchPhase: 'Pre-Game',
-  
+
   weather: {
     temperature: 24,
     rainIntensity: 0,
@@ -130,23 +130,23 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     targetTemperature: 24,
     targetRainIntensity: 0
   },
-  
+
   transport: {
     trainDelays: 0,
     busDelays: 0,
     incomingPassengers: 0,
     dispersingCrowds: []
   },
-  
+
   gates: {
-    'A': { id: 'A', isOpen: true, capacityPerHour: 4000, currentThroughput: 0, queueLength: 1500, activeLanes: 4, averageWaitTime: 12, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'B': { id: 'B', isOpen: true, capacityPerHour: 3000, currentThroughput: 0, queueLength: 800, activeLanes: 4, averageWaitTime: 8, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'C': { id: 'C', isOpen: true, capacityPerHour: 4000, currentThroughput: 0, queueLength: 2200, activeLanes: 4, averageWaitTime: 18, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'D': { id: 'D', isOpen: true, capacityPerHour: 3500, currentThroughput: 0, queueLength: 400, activeLanes: 4, averageWaitTime: 4, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'E': { id: 'E', isOpen: false, capacityPerHour: 3000, currentThroughput: 0, queueLength: 0, activeLanes: 0, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'F': { id: 'F', isOpen: true, capacityPerHour: 3000, currentThroughput: 0, queueLength: 600, activeLanes: 4, averageWaitTime: 6, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'A': { id: 'A', isOpen: true, capacityPerHour: 12000, currentThroughput: 0, queueLength: 1500, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, currentThroughput: 0, queueLength: 800, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, currentThroughput: 0, queueLength: 2200, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'D': { id: 'D', isOpen: true, capacityPerHour: 12000, currentThroughput: 0, queueLength: 400, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'E': { id: 'E', isOpen: true, capacityPerHour: 3000, currentThroughput: 0, queueLength: 300, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, currentThroughput: 0, queueLength: 600, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
   },
-  
+
   zones: stadiumLayout.zones.reduce((acc, z) => {
     acc[z.id] = {
       id: z.id,
@@ -160,7 +160,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     };
     return acc;
   }, {} as Record<string, ZoneState>),
-  
+
   teams: {
     'sec-1': { id: 'sec-1', department: 'security', location: 'Gate A', status: 'idle' },
     'sec-2': { id: 'sec-2', department: 'security', location: 'Section 101-104', status: 'idle' },
@@ -178,7 +178,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'cln-3': { id: 'cln-3', department: 'cleaning', location: 'East Concourse', status: 'idle' },
     'cln-4': { id: 'cln-4', department: 'cleaning', location: 'West Concourse', status: 'idle' },
   },
-  
+
   foodCourts: {
     'fc-1': { id: 'fc-1', name: 'North Concourse Food', location: 'North Concourse', headcount: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
     'fc-2': { id: 'fc-2', name: 'South Concourse Food', location: 'South Concourse', headcount: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
@@ -189,9 +189,9 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'fc-7': { id: 'fc-7', name: 'Lower Bowl Snacks', location: 'Section 101-104', headcount: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
     'fc-8': { id: 'fc-8', name: 'Upper Bowl Snacks', location: 'Section 301-304', headcount: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
   },
-  
+
   incidents: [],
-  
+
   historicalMetrics: {
     occupancyTrend: 0,
     queueTrend: 0,
@@ -201,20 +201,20 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     lastTimelineUpdate: -7200,
     timeline: []
   },
-  
+
   setSpeed: (speed) => set({ speed }),
   togglePause: () => set((state) => ({ isPaused: !state.isPaused })),
-  tick: (deltaTime) => set((state) => ({ 
-    simTime: state.simTime + deltaTime, 
-    tickCount: state.tickCount + 1 
+  tick: (deltaTime) => set((state) => ({
+    simTime: state.simTime + deltaTime,
+    tickCount: state.tickCount + 1
   })),
-  
+
   updateState: (partial) => set((state) => ({ ...state, ...partial })),
-  
+
   addIncident: (event) => set((state) => ({
     incidents: [event, ...state.incidents]
   })),
-  
+
   resolveIncident: (id) => set((state) => ({
     incidents: state.incidents.map(i => i.id === id ? { ...i, status: 'resolved' } : i)
   }))
