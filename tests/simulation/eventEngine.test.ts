@@ -11,6 +11,7 @@ describe('EventEngine', () => {
     mockState = {
       simTime: 100,
       incidents: [],
+      weather: { temperature: 20, rainIntensity: 0, windSpeed: 5, humidity: 50, targetTemperature: 20, targetRainIntensity: 0 },
       gates: {
         'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 800, activeLanes: 4, averageWaitTime: 25, scannerStatus: 'operational' }
       },
