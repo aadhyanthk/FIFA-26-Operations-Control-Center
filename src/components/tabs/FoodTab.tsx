@@ -7,7 +7,7 @@ export const FoodTab: React.FC = () => {
   const courts = Object.values(foodCourts || {});
 
   const totalRevenue = courts.reduce((sum, fc) => sum + fc.revenue, 0);
-  const totalQueue = courts.reduce((sum, fc) => sum + fc.queueLength, 0);
+  const totalQueue = courts.reduce((sum, fc) => sum + fc.headcount, 0);
   const avgQueue = courts.length > 0 ? totalQueue / courts.length : 0;
   
   const lowStockCount = courts.filter(fc => fc.drinkStock < 20 || fc.foodStock < 20).length;
@@ -17,8 +17,8 @@ export const FoodTab: React.FC = () => {
     <div className="flex-col gap-lg h-full">
       <div className="flex-row gap-md">
         <MetricCard title="Total Revenue ($)" value={totalRevenue} format="number" />
-        <MetricCard title="Total Queued" value={Math.floor(totalQueue)} format="number" status={totalQueue > 400 ? 'critical' : totalQueue > 200 ? 'warning' : 'ok'} />
-        <MetricCard title="Average Queue" value={Math.floor(avgQueue)} format="number" />
+        <MetricCard title="Total Headcount" value={Math.floor(totalQueue)} format="number" status={totalQueue > 400 ? 'critical' : totalQueue > 200 ? 'warning' : 'ok'} />
+        <MetricCard title="Average Headcount" value={Math.floor(avgQueue)} format="number" />
         <MetricCard title="System Health (Issues)" value={failedEquipmentCount + lowStockCount} status={failedEquipmentCount > 0 ? 'critical' : lowStockCount > 0 ? 'warning' : 'ok'} />
       </div>
 
@@ -29,7 +29,7 @@ export const FoodTab: React.FC = () => {
       }}>
         {courts.map(fc => {
           const isFailed = fc.equipmentStatus === 'failed';
-          const queueStatus = fc.queueLength > 50 ? 'var(--critical)' : fc.queueLength > 25 ? 'var(--warning)' : 'var(--ok)';
+          const queueStatus = fc.headcount > 500 ? 'var(--critical)' : fc.headcount > 250 ? 'var(--warning)' : 'var(--ok)';
           
           return (
             <div key={fc.id} className="card flex-col gap-md" style={{
@@ -55,9 +55,9 @@ export const FoodTab: React.FC = () => {
               </div>
 
               <div className="flex-row justify-between" style={{ alignItems: 'baseline' }}>
-                <span className="text-secondary text-sm">Queue Length</span>
+                <span className="text-secondary text-sm">Current Headcount</span>
                 <span className="mono font-bold text-lg" style={{ color: queueStatus }}>
-                  {Math.floor(fc.queueLength)}
+                  {Math.floor(fc.headcount)}
                 </span>
               </div>
 

@@ -63,7 +63,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
   - Revenue tracking (cosmetic but adds realism to the dashboard)
 - Generate events: stock below 20%, queue > 50 people, vendor equipment failure
 
-### 1.2 Weather Engine Enhancement
+### [x] 1.2 Weather Engine Enhancement
 - Add humidity tracking (30-95%, affects heat exhaustion risk)
 - Add weather "events" — sudden rain squall (probability ramp from 0 to 0.7 over 10 minutes), temperature spike
 - Generate weather events in the EventEngine: rain > 0.7 triggers a weather incident, temp > 38°C triggers heat advisory

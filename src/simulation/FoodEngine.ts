@@ -23,7 +23,7 @@ export class FoodEngine {
 
       const demandRate = (density * 5 * matchPhaseMultiplier);
       const newPeople = demandRate * deltaTime;
-      fc.queueLength += newPeople;
+      fc.headcount += newPeople;
 
       // Equipment failure
       if (fc.equipmentStatus === 'operational' && Math.random() < 0.0001) {
@@ -50,12 +50,12 @@ export class FoodEngine {
       if (fc.equipmentStatus === 'failed') {
         processingRate = 1.0;
         // Fans gradually leave the queue because they wanted the food from the broken equipment
-        const leaving = Math.min(fc.queueLength, 0.5 * deltaTime); 
-        fc.queueLength = Math.max(0, fc.queueLength - leaving);
+        const leaving = Math.min(fc.headcount, 0.5 * deltaTime); 
+        fc.headcount = Math.max(0, fc.headcount - leaving);
       }
       
-      const processed = Math.min(fc.queueLength, processingRate * deltaTime);
-      fc.queueLength = Math.max(0, fc.queueLength - processed);
+      const processed = Math.min(fc.headcount, processingRate * deltaTime);
+      fc.headcount = Math.max(0, fc.headcount - processed);
       if (processed > 0 || newPeople > 0) hasChanges = true;
 
       let drinkDepletion = processed * 0.05;
@@ -88,16 +88,16 @@ export class FoodEngine {
         }
       }
 
-      if (fc.queueLength > 1000) {
-        const exists = newIncidents.find(i => i.type === 'crowd' && i.location === fc.name && i.title.includes('Queue') && i.status !== 'resolved');
+      if (fc.headcount > 1000) {
+        const exists = newIncidents.find(i => i.type === 'crowd' && i.location === fc.name && i.title.includes('Crowded') && i.status !== 'resolved');
         if (!exists) {
           newIncidents.unshift({
             id: `ev-crd-queue-${Date.now()}-${fc.id}`,
             timestamp: state.simTime,
             type: 'crowd',
             severity: 'medium',
-            title: `Long Queue at ${fc.name}`,
-            description: `Food court queue has exceeded 1000 people (${Math.floor(fc.queueLength)} currently).`,
+            title: `Crowded Food Court at ${fc.name}`,
+            description: `Food court headcount has exceeded 1000 people (${Math.floor(fc.headcount)} currently).`,
             location: fc.name,
             relatedEvents: [],
             status: 'new'
@@ -116,7 +116,7 @@ export class FoodEngine {
         fc.inboundTransits.forEach(t => {
           t.timeRemaining -= deltaTime;
           if (t.timeRemaining <= 0) {
-            fc.queueLength += t.amount;
+            fc.headcount += t.amount;
             hasChanges = true;
           } else {
             remaining.push(t);
@@ -126,15 +126,15 @@ export class FoodEngine {
       }
 
       // If queue is huge, some fans decide to walk to a shorter one
-      if (fc.queueLength > 500) {
-        const candidates = fcList.filter(f => f.id !== fc.id && f.queueLength < 150);
+      if (fc.headcount > 500) {
+        const candidates = fcList.filter(f => f.id !== fc.id && f.headcount < 150);
         if (candidates.length > 0) {
           // Transfer ~10% of the excess crowd per second (so it's gradual)
-          const leavingRate = (fc.queueLength - 500) * 0.10;
-          const leaving = Math.min(fc.queueLength - 500, leavingRate * deltaTime);
+          const leavingRate = (fc.headcount - 500) * 0.10;
+          const leaving = Math.min(fc.headcount - 500, leavingRate * deltaTime);
           
           if (leaving > 1) {
-            fc.queueLength -= leaving;
+            fc.headcount -= leaving;
             const candidate = candidates[Math.floor(Math.random() * candidates.length)];
             
             candidate.inboundTransits = [
