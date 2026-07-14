@@ -2,7 +2,7 @@ export interface StadiumEvent {
   id: string;
   timestamp: number;
   type: 'crowd' | 'medical' | 'security' | 'maintenance' | 'weather' | 'transport' | 'cleaning';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical';
   title: string;
   description: string;
   location: string;
@@ -108,8 +108,35 @@ export class EventEngine {
       });
     }
 
-    if (newIncidents.length > 0 || incidentsChanged) {
-      return { incidents: [...newIncidents, ...incidents] };
+    // Match Phase Transition Detection
+    let phase = 'Pre-Game';
+    if (state.simTime >= 0 && state.simTime < 2700) phase = 'First Half';
+    else if (state.simTime >= 2700 && state.simTime < 3600) phase = 'Halftime';
+    else if (state.simTime >= 3600 && state.simTime < 6300) phase = 'Second Half';
+    else if (state.simTime >= 6300 && state.simTime < 10800) phase = 'Exodus';
+    else if (state.simTime >= 10800) phase = 'Post-Game';
+
+    let phaseChanged = false;
+    if (phase !== state.activeMatchPhase) {
+      phaseChanged = true;
+      newIncidents.push({
+        id: `ev-phase-${state.simTime}`,
+        timestamp: state.simTime,
+        type: 'crowd',
+        severity: 'info', // using info severity for notifications
+        title: `Match Phase: ${phase}`,
+        description: `The match has entered the ${phase} phase. Expect shifts in crowd movement and operational demands.`,
+        location: 'Stadium Wide',
+        relatedEvents: [],
+        status: 'new'
+      });
+    }
+
+    if (newIncidents.length > 0 || incidentsChanged || phaseChanged) {
+      return { 
+        incidents: [...newIncidents, ...incidents],
+        ...(phaseChanged ? { activeMatchPhase: phase } : {})
+      };
     }
 
     return {};

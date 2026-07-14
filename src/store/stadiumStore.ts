@@ -26,8 +26,10 @@ export interface GateState {
   queueLength: number;
   activeLanes: number;
   averageWaitTime: number; // minutes
-  scannerStatus: 'operational' | 'degraded' | 'failed';
+  scannerStatus: 'operational' | 'degraded' | 'offline';
   scannerHealth: number; // 0-100
+  mode: 'inflow' | 'outflow';
+  inboundTransits?: { amount: number, timeRemaining: number }[];
 }
 
 export interface ZoneState {
@@ -49,6 +51,7 @@ export interface FoodCourtState {
   drinkStock: number; // 0 to 100
   foodStock: number; // 0 to 100
   revenue: number;
+  inboundTransits?: { amount: number, timeRemaining: number }[];
   equipmentStatus: 'operational' | 'failed';
 }
 
@@ -65,10 +68,11 @@ export interface TeamState {
 
 export interface StadiumState {
   // Simulation control
-  simTime: number;
+  simTime: number; // seconds since start (0 = kickoff)
   tickCount: number;
   speed: 1 | 2 | 5 | 10;
   isPaused: boolean;
+  activeMatchPhase: string;
   
   // Subsystem states
   weather: WeatherState;
@@ -106,6 +110,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   tickCount: 0,
   speed: 1,
   isPaused: true,
+  activeMatchPhase: 'Pre-Game',
   
   weather: {
     temperature: 24,
@@ -124,12 +129,12 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   },
   
   gates: {
-    'A': { id: 'A', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
-    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
-    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
-    'D': { id: 'D', isOpen: true, capacityPerHour: 8000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
-    'E': { id: 'E', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
-    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100 },
+    'A': { id: 'A', isOpen: true, capacityPerHour: 12000, queueLength: 0, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'D': { id: 'D', isOpen: true, capacityPerHour: 12000, queueLength: 0, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'E': { id: 'E', isOpen: false, capacityPerHour: 3000, queueLength: 0, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
   },
   
   zones: stadiumLayout.zones.reduce((acc, z) => {

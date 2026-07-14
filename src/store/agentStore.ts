@@ -11,7 +11,7 @@ export interface PlanAction {
 export interface ExecutionPlan {
   id: string;
   timestamp: number;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical';
   title: string;
   reasoning: string;
   rootCause: string;

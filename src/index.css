@@ -25,6 +25,7 @@
   --ok-border:      #14532d;
   --info:           #3b82f6;  /* ℹ️ Informational, AI suggestions */
   --info-bg:        #1e3a5f;
+  --info-border:    #1e3a8a;
 
   /* Accent */
   --accent:       #6366f1;   /* Interactive elements, focus rings */

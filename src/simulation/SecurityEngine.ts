@@ -13,15 +13,15 @@ export class SecurityEngine {
       if (Math.random() < 0.0005) {
         gate.scannerHealth = Math.max(0, gate.scannerHealth - Math.floor(Math.random() * 10 + 1));
         
-        let newStatus: 'operational' | 'degraded' | 'failed' = 'operational';
-        if (gate.scannerHealth < 20) newStatus = 'failed';
+        let newStatus: 'operational' | 'degraded' | 'offline' = 'operational';
+        if (gate.scannerHealth < 20) newStatus = 'offline';
         else if (gate.scannerHealth < 50) newStatus = 'degraded';
         
         if (gate.scannerStatus !== newStatus) {
           gate.scannerStatus = newStatus;
           hasChanges = true;
 
-          if (newStatus === 'failed') {
+          if (newStatus === 'offline') {
             const hasMaint = newIncidents.find(i => i.type === 'maintenance' && i.location === `Gate ${gate.id}` && i.status !== 'resolved');
             if (!hasMaint) {
               newIncidents.unshift({
@@ -45,7 +45,7 @@ export class SecurityEngine {
     let incidentChance = 1 / 3600; // ~1/hour
     if (state.simTime > 3600) incidentChance *= 1.3; // late game tension
 
-    const hasFailedScanner = Object.values(newGates).some(g => g.scannerStatus === 'failed');
+    const hasFailedScanner = Object.values(newGates).some(g => g.scannerStatus === 'offline');
     if (hasFailedScanner) incidentChance *= 1.15;
 
     incidentChance *= 1.2; // High alcohol zones multiplier overall

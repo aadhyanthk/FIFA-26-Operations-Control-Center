@@ -41,6 +41,45 @@ export class ToolExecutor {
         }
         return `Gate ${params.gate_id} not found.`;
 
+      case 'reroute_gate': {
+        const fromId = params.from_gate;
+        const toId = params.to_gate;
+        const perc = params.percentage;
+        const fromGate = store.gates[fromId];
+        const toGate = store.gates[toId];
+
+        if (!fromGate || !toGate) return `Gate not found.`;
+        if (perc <= 0 || perc > 100) return `Invalid percentage.`;
+
+        const amount = Math.floor(fromGate.queueLength * (perc / 100));
+        if (amount <= 0) return `Queue at ${fromId} is empty.`;
+
+        const { stadiumLayout } = await import('../data/stadiumLayout');
+        const g1 = stadiumLayout.gates.find(g => g.id === fromId)?.location || { x: 0.5, y: 0.5 };
+        const g2 = stadiumLayout.gates.find(g => g.id === toId)?.location || { x: 0.5, y: 0.5 };
+        const distance = Math.sqrt(Math.pow(g1.x - g2.x, 2) + Math.pow(g1.y - g2.y, 2));
+        const travelTime = 120 + Math.floor(distance * 600); 
+
+        useStadiumStore.setState(state => ({
+          gates: {
+            ...state.gates,
+            [fromId]: {
+              ...state.gates[fromId],
+              queueLength: Math.max(0, state.gates[fromId].queueLength - amount)
+            },
+            [toId]: {
+              ...state.gates[toId],
+              inboundTransits: [
+                ...(state.gates[toId].inboundTransits || []),
+                { amount, timeRemaining: travelTime }
+              ]
+            }
+          }
+        }));
+
+        return `Rerouted ${amount} fans from Gate ${fromId} to Gate ${toId}. Est. transit time: ${Math.floor(travelTime / 60)} minutes.`;
+      }
+
       case 'dispatch_security': {
         const teamId = params.team_id;
         const targetLoc = params.location;

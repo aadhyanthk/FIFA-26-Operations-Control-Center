@@ -107,6 +107,46 @@ export class FoodEngine {
       }
     });
 
+    // Autonomous Fan Behavior for load balancing (Transit logic)
+    const fcList = Object.values(newFoodCourts);
+    fcList.forEach(fc => {
+      // Process arriving transits
+      if (fc.inboundTransits && fc.inboundTransits.length > 0) {
+        const remaining: {amount: number, timeRemaining: number}[] = [];
+        fc.inboundTransits.forEach(t => {
+          t.timeRemaining -= deltaTime;
+          if (t.timeRemaining <= 0) {
+            fc.queueLength += t.amount;
+            hasChanges = true;
+          } else {
+            remaining.push(t);
+          }
+        });
+        fc.inboundTransits = remaining;
+      }
+
+      // If queue is huge, some fans decide to walk to a shorter one
+      if (fc.queueLength > 500) {
+        const candidates = fcList.filter(f => f.id !== fc.id && f.queueLength < 150);
+        if (candidates.length > 0) {
+          // Transfer ~2% of the excess crowd per second (so it's gradual)
+          const leavingRate = (fc.queueLength - 500) * 0.02;
+          const leaving = Math.min(fc.queueLength - 500, leavingRate * deltaTime);
+          
+          if (leaving > 1) {
+            fc.queueLength -= leaving;
+            const candidate = candidates[Math.floor(Math.random() * candidates.length)];
+            
+            candidate.inboundTransits = [
+              ...(candidate.inboundTransits || []),
+              { amount: leaving, timeRemaining: 180 + Math.random() * 120 } // 3 to 5 mins walk
+            ];
+            hasChanges = true;
+          }
+        }
+      }
+    });
+
     if (hasChanges) {
       return { foodCourts: newFoodCourts, incidents: newIncidents };
     }
