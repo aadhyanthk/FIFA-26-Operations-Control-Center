@@ -7,10 +7,34 @@ export const GatesTab: React.FC = () => {
   const gates = useStadiumStore(state => state.gates);
   const historicalMetrics = useStadiumStore(state => state.historicalMetrics);
 
+  const gatesArray = Object.values(gates);
+  const openGates = gatesArray.filter(g => g.isOpen).length;
+  const totalGates = gatesArray.length;
+  const totalThroughput = gatesArray.reduce((acc, g) => acc + (g.currentThroughput || 0), 0);
+  const avgWait = gatesArray.reduce((acc, g) => acc + g.averageWaitTime, 0) / (totalGates || 1);
+
   return (
     <div className="flex-col gap-md">
       <h2 className="text-primary mb-md mt-0">Gate Operations</h2>
       
+      <div className="grid-3 gap-md mb-md">
+        <MetricCard 
+          title="Total Throughput" 
+          value={Math.round(totalThroughput)} 
+          format="number" 
+        />
+        <MetricCard 
+          title="Avg Wait Time" 
+          value={avgWait} 
+          format="time" 
+          status={avgWait >= 20 ? 'critical' : avgWait >= 10 ? 'warning' : 'ok'} 
+        />
+        <MetricCard 
+          title="Open Gates" 
+          value={openGates} 
+        />
+      </div>
+
       <div className="grid-auto gap-md">
         {Object.values(gates).map(gate => {
           
@@ -63,24 +87,53 @@ export const GatesTab: React.FC = () => {
                   />
                 </div>
               </div>
-              <MetricCard 
-                title="Wait Time" 
-                value={gate.averageWaitTime} 
-                format="time"
-                status={gate.averageWaitTime > 15 ? 'warning' : 'ok'} 
-              />
+              <div className="flex-col gap-xs">
+                <MetricCard 
+                  title="Wait Time" 
+                  value={gate.averageWaitTime} 
+                  format="time"
+                  status={gate.averageWaitTime >= 20 ? 'critical' : gate.averageWaitTime >= 10 ? 'warning' : 'ok'} 
+                />
+                <div className="text-xs text-secondary mt-xs flex-row justify-between">
+                  <span>Throughput</span>
+                  <span className="mono font-semibold text-primary">{Math.round(gate.currentThroughput || 0)} / {gate.capacityPerHour} <span className="text-muted">pph</span></span>
+                </div>
+              </div>
             </div>
 
-            <div className="text-base text-secondary">
-              <div className="flex-row justify-between mb-xs">
+            <div className="text-base text-secondary flex-col gap-sm">
+              <div className="flex-row justify-between items-center">
                 <span>Active Lanes</span>
-                <span className="mono">{gate.activeLanes} Lanes</span>
+                <div className="flex-row gap-xs">
+                  {[1, 2, 3, 4].map(lane => (
+                    <div 
+                      key={lane}
+                      style={{
+                        width: '12px',
+                        height: '12px',
+                        borderRadius: '2px',
+                        backgroundColor: lane <= gate.activeLanes ? 'var(--accent)' : 'var(--bg-tertiary)',
+                        border: lane <= gate.activeLanes ? 'none' : '1px solid var(--border)'
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="flex-row justify-between">
-                <span>Scanner Status</span>
-                <span className={`font-medium ${gate.scannerStatus === 'operational' ? 'text-ok' : gate.scannerStatus === 'degraded' ? 'text-warning' : 'text-critical'}`} style={{ color: `var(--${gate.scannerStatus === 'operational' ? 'ok' : gate.scannerStatus === 'degraded' ? 'warning' : 'critical'})` }}>
-                  {gate.scannerStatus.toUpperCase()}
-                </span>
+              <div className="flex-col gap-xs">
+                <div className="flex-row justify-between items-center">
+                  <span>Scanner Health</span>
+                  <span className={`text-xs font-semibold ${gate.scannerHealth < 50 ? 'text-critical' : gate.scannerHealth < 80 ? 'text-warning' : 'text-ok'}`}>
+                    {Math.round(gate.scannerHealth)}%
+                  </span>
+                </div>
+                <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${gate.scannerHealth}%`,
+                    height: '100%',
+                    backgroundColor: gate.scannerHealth < 50 ? 'var(--critical)' : gate.scannerHealth < 80 ? 'var(--warning)' : 'var(--ok)',
+                    transition: 'width 0.3s ease, background-color 0.3s ease'
+                  }} />
+                </div>
               </div>
             </div>
 

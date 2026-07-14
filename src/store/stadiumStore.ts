@@ -23,6 +23,7 @@ export interface GateState {
   id: string;
   isOpen: boolean;
   capacityPerHour: number;
+  currentThroughput: number;
   queueLength: number;
   activeLanes: number;
   averageWaitTime: number; // minutes
@@ -138,12 +139,12 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   },
   
   gates: {
-    'A': { id: 'A', isOpen: true, capacityPerHour: 12000, queueLength: 0, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'D': { id: 'D', isOpen: true, capacityPerHour: 12000, queueLength: 0, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'E': { id: 'E', isOpen: true, capacityPerHour: 3000, queueLength: 0, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'A': { id: 'A', isOpen: true, capacityPerHour: 4000, currentThroughput: 0, queueLength: 1500, activeLanes: 4, averageWaitTime: 12, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'B': { id: 'B', isOpen: true, capacityPerHour: 3000, currentThroughput: 0, queueLength: 800, activeLanes: 4, averageWaitTime: 8, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'C': { id: 'C', isOpen: true, capacityPerHour: 4000, currentThroughput: 0, queueLength: 2200, activeLanes: 4, averageWaitTime: 18, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'D': { id: 'D', isOpen: true, capacityPerHour: 3500, currentThroughput: 0, queueLength: 400, activeLanes: 4, averageWaitTime: 4, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'E': { id: 'E', isOpen: false, capacityPerHour: 3000, currentThroughput: 0, queueLength: 0, activeLanes: 0, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'F': { id: 'F', isOpen: true, capacityPerHour: 3000, currentThroughput: 0, queueLength: 600, activeLanes: 4, averageWaitTime: 6, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
   },
   
   zones: stadiumLayout.zones.reduce((acc, z) => {

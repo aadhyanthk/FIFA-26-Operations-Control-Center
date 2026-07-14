@@ -321,7 +321,7 @@ Execute in this order. Each phase builds on the previous one.
 2. [x] **Simulation Engines** (Phase 1.1-1.4) — The sim must be believable first
 3. [x] **Stadium Map** (Phase 2.2) — The visual centerpiece
 4. [x] **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
-5. **IncidentFeed** (Phase 2.5) — Core operational UI
+5. [x] **IncidentFeed** (Phase 2.5) — Core operational UI
 6. **Gates Tab** (Phase 2.7) — Most-used operational tab
 7. **ToolExecutor + Agent** (Phase 3.2, 3.1, 3.3) — Make the AI actually work
 8. **AI Panel + Execution Plans** (Phase 2.10, 3.4) — The differentiator

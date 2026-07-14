@@ -96,6 +96,8 @@ export class GateEngine {
         gate.averageWaitTime = gate.queueLength > 0 ? 999 : 0;
       }
       
+      gate.currentThroughput = effectiveCapacityPerHour * surgeMultiplier;
+      
       gates[key] = gate;
     });
 
