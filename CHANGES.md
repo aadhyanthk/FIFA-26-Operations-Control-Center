@@ -27,7 +27,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
 
 ## Phase 1: Simulation Engine Realism
 
-### 1.1 Complete the Placeholder Engines
+### [x] 1.1 Complete the Placeholder Engines
 
 #### [x] `MedicalEngine.ts` — Full Implementation
 - Track 4 medical teams (expand from 2) with individual cooldown timers

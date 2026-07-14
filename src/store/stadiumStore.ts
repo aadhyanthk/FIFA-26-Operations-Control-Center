@@ -7,6 +7,9 @@ export interface WeatherState {
   temperature: number; // Celsius
   rainIntensity: number; // 0 to 1
   windSpeed: number; // km/h
+  humidity: number; // 30 to 95%
+  targetTemperature: number;
+  targetRainIntensity: number;
 }
 
 export interface TransportState {
@@ -107,7 +110,10 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   weather: {
     temperature: 24,
     rainIntensity: 0,
-    windSpeed: 10
+    windSpeed: 10,
+    humidity: 60,
+    targetTemperature: 24,
+    targetRainIntensity: 0
   },
   
   transport: {

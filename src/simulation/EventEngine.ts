@@ -59,8 +59,57 @@ export class EventEngine {
       }
     });
 
-    if (newIncidents.length > 0) {
-      return { incidents: [...newIncidents, ...state.incidents] };
+    let incidents = [...state.incidents];
+    let incidentsChanged = false;
+
+    // Auto-resolve weather events
+    incidents = incidents.map(incident => {
+      if (incident.type === 'weather' && incident.status !== 'resolved') {
+        if (incident.title.includes('Rain') && state.weather.rainIntensity < 0.3) {
+          incidentsChanged = true;
+          return { ...incident, status: 'resolved' };
+        }
+        if (incident.title.includes('Heat') && state.weather.temperature < 35) {
+          incidentsChanged = true;
+          return { ...incident, status: 'resolved' };
+        }
+      }
+      return incident;
+    });
+
+    // Check Weather
+    const rainExists = incidents.find(i => i.type === 'weather' && i.title.includes('Rain') && i.status !== 'resolved');
+    if (state.weather.rainIntensity > 0.7 && !rainExists) {
+      newIncidents.push({
+        id: `ev-wth-rain-${state.simTime}`,
+        timestamp: state.simTime,
+        type: 'weather',
+        severity: 'high',
+        title: 'Heavy Rain Squall',
+        description: `Rain intensity has exceeded 70%. Outdoor concourse flooding possible and gate throughput reduced.`,
+        location: 'Stadium Wide',
+        relatedEvents: [],
+        status: 'new'
+      });
+    }
+
+    const heatExists = incidents.find(i => i.type === 'weather' && i.title.includes('Heat') && i.status !== 'resolved');
+    if (state.weather.temperature > 38 && !heatExists) {
+      newIncidents.push({
+        id: `ev-wth-heat-${state.simTime}`,
+        timestamp: state.simTime,
+        type: 'weather',
+        severity: 'critical',
+        title: 'Extreme Heat Advisory',
+        description: `Temperature has reached ${state.weather.temperature.toFixed(1)}°C. High risk of heat exhaustion for fans in exposed zones.`,
+        location: 'Stadium Wide',
+        relatedEvents: [],
+        status: 'new'
+      });
+    }
+
+    if (newIncidents.length > 0 || incidentsChanged) {
+      return { incidents: [...newIncidents, ...incidents] };
     }
 
     return {};
