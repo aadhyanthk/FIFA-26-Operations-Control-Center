@@ -50,7 +50,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
 - Scanner degradation: each gate scanner has a health value (0-100) that randomly degrades. At <50 → degraded, at <20 → failed
 - Auto-resolve: similar to medical, but security incidents take 120-600 seconds
 
-#### `CleaningEngine.ts` — Full Implementation
+#### [x] `CleaningEngine.ts` — Full Implementation
 - Track 4 cleaning crews
 - Track litter levels per zone (0-1 float), increases with crowd density and food court proximity
 - Track restroom status per concourse: clean → needs_attention → critical based on usage rate

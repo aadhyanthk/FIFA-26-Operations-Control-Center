@@ -10,8 +10,8 @@ describe('CrowdEngine', () => {
     engine = new CrowdEngine();
     mockState = {
       zones: {
-        '101': { id: '101', name: 'Section 101', maxCapacity: 1000, currentOccupancy: 850, density: 0.85 },
-        '102': { id: '102', name: 'Section 102', maxCapacity: 1000, currentOccupancy: 200, density: 0.2 }
+        '101': { id: '101', name: 'Section 101', maxCapacity: 1000, currentOccupancy: 850, density: 0.85, litterLevel: 0, restroomStatus: 'clean', restroomUsage: 0 },
+        '102': { id: '102', name: 'Section 102', maxCapacity: 1000, currentOccupancy: 200, density: 0.2, litterLevel: 0, restroomStatus: 'clean', restroomUsage: 0 }
       }
     };
   });

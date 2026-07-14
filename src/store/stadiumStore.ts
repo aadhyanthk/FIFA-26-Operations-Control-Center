@@ -38,6 +38,17 @@ export interface ZoneState {
   restroomUsage: number;
 }
 
+export interface FoodCourtState {
+  id: string;
+  name: string;
+  location: string;
+  queueLength: number;
+  drinkStock: number; // 0 to 100
+  foodStock: number; // 0 to 100
+  revenue: number;
+  equipmentStatus: 'operational' | 'failed';
+}
+
 export interface TeamState {
   id: string;
   department: 'security' | 'medical' | 'cleaning' | 'maintenance';
@@ -62,6 +73,7 @@ export interface StadiumState {
   gates: Record<string, GateState>;
   zones: Record<string, ZoneState>;
   teams: Record<string, TeamState>;
+  foodCourts: Record<string, FoodCourtState>;
   
   // Events
   incidents: StadiumEvent[];
@@ -144,6 +156,17 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'cln-2': { id: 'cln-2', department: 'cleaning', location: 'North Concourse', status: 'idle' },
     'cln-3': { id: 'cln-3', department: 'cleaning', location: 'East Concourse', status: 'idle' },
     'cln-4': { id: 'cln-4', department: 'cleaning', location: 'West Concourse', status: 'idle' },
+  },
+  
+  foodCourts: {
+    'fc-1': { id: 'fc-1', name: 'North Concourse Food', location: 'North Concourse', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-2': { id: 'fc-2', name: 'South Concourse Food', location: 'South Concourse', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-3': { id: 'fc-3', name: 'East Concourse Food', location: 'East Concourse', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-4': { id: 'fc-4', name: 'West Concourse Food', location: 'West Concourse', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-5': { id: 'fc-5', name: 'East Club Grill', location: 'East Club', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-6': { id: 'fc-6', name: 'West Club Grill', location: 'West Club', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-7': { id: 'fc-7', name: 'Lower Bowl Snacks', location: 'Section 101-104', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
+    'fc-8': { id: 'fc-8', name: 'Upper Bowl Snacks', location: 'Section 301-304', queueLength: 0, drinkStock: 100, foodStock: 100, revenue: 0, equipmentStatus: 'operational' },
   },
   
   incidents: [],
