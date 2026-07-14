@@ -1,7 +1,7 @@
 import React from 'react';
 import { useUIStore } from '../../store/uiStore';
 
-const tabs = ['Overview', 'Gates', 'Security', 'Medical', 'Maintenance', 'Agent'];
+const tabs = ['Overview', 'Gates', 'Security', 'Medical', 'Maintenance', 'Food', 'Agent'];
 
 export const TabBar: React.FC = () => {
   const { activeTab, setActiveTab } = useUIStore();

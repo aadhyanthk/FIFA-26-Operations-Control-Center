@@ -7,6 +7,7 @@ import { GatesTab } from './components/tabs/GatesTab';
 import { SecurityTab } from './components/tabs/SecurityTab';
 import { MedicalTab } from './components/tabs/MedicalTab';
 import { MaintenanceTab } from './components/tabs/MaintenanceTab';
+import { FoodTab } from './components/tabs/FoodTab';
 import { AgentTab } from './components/tabs/AgentTab';
 import { AIPanel } from './components/layout/AIPanel';
 import { useStadiumStore } from './store/stadiumStore';
@@ -61,6 +62,7 @@ function App() {
           {activeTab === 'Security' && <SecurityTab />}
           {activeTab === 'Medical' && <MedicalTab />}
           {activeTab === 'Maintenance' && <MaintenanceTab />}
+          {activeTab === 'Food' && <FoodTab />}
           {activeTab === 'Agent' && <AgentTab />}
         </div>
 

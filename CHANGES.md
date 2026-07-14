@@ -56,7 +56,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
 - Track restroom status per concourse: clean → needs_attention → critical based on usage rate
 - Generate cleaning events when litter > 0.7 or restroom status becomes critical
 
-#### `FoodEngine.ts` — Full Implementation  
+#### [x] `FoodEngine.ts` — Full Implementation  
 - Track 8 food courts with:
   - Queue lengths (based on nearby crowd density + match phase)
   - Stock levels for drinks and food (deplete over time, faster in heat)

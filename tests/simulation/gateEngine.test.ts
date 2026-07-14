@@ -18,7 +18,8 @@ describe('GateEngine', () => {
           queueLength: 500,
           activeLanes: 4,
           averageWaitTime: 0,
-          scannerStatus: 'operational'
+          scannerStatus: 'operational',
+          scannerHealth: 100
         }
       }
     };
