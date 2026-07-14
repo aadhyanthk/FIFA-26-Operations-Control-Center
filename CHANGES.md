@@ -135,7 +135,7 @@ The current map is circles and rectangles on a plain canvas. It needs to look li
 - Ollama status indicator should actually ping localhost:11434 and show real connection status (green=connected, red=disconnected, yellow=connecting)
 - Add a clock showing current sim time prominently (digital clock style, JetBrains Mono)
 
-### 2.4 MetricCard Redesign
+### [x] 2.4 MetricCard Redesign
 - Implement actual digit-flip animation (the AnimatedCounter currently just sets the value with no animation)
 - Add sparkline (mini line chart) at the bottom of each card showing the last 5 minutes of that metric's history
 - The progress bar at the bottom should represent capacity utilization (e.g., total inside / max capacity), not a static 70%
@@ -151,8 +151,7 @@ The current map is circles and rectangles on a plain canvas. It needs to look li
 - Show total count badge on each filter tab
 
 ### 2.6 Overview Tab Layout
-- Remove the "Incoming Fan Stream" / "In-Transit (Dispersed)" / "Train Delays" / "Bus Delays" row (per TOFIX.md)
-- Replace with a weather strip: Temperature, Rain, Wind, Humidity as compact inline indicators
+- Dashboard weather strip: Temperature, Rain, Wind, Humidity as compact inline indicators
 - Stadium map should take ~60% of the vertical space (it's the hero element)
 - Right column: AI Predictive Monitor at top, then Incident Feed filling remaining space
 

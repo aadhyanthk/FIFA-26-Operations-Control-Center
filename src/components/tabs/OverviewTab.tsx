@@ -3,6 +3,7 @@ import { StadiumMap } from '../dashboard/StadiumMap';
 import { MetricCard } from '../dashboard/MetricCard';
 import { IncidentFeed } from '../dashboard/IncidentFeed';
 import { PredictiveAlerts } from '../dashboard/PredictiveAlerts';
+import { WeatherStrip } from '../dashboard/WeatherStrip';
 import { useStadiumStore } from '../../store/stadiumStore';
 
 export const OverviewTab: React.FC = () => {
@@ -60,8 +61,11 @@ export const OverviewTab: React.FC = () => {
           />
         </div>
 
+        {/* Weather Strip */}
+        <WeatherStrip />
+
         {/* Map */}
-        <div className="flex-1">
+        <div className="flex-1" style={{ minHeight: '60%' }}>
           <StadiumMap />
         </div>
 
