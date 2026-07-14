@@ -68,7 +68,7 @@ After reviewing every file in the project against the `PROJECT.md` vision, here 
 - Add weather "events" — sudden rain squall (probability ramp from 0 to 0.7 over 10 minutes), temperature spike
 - Generate weather events in the EventEngine: rain > 0.7 triggers a weather incident, temp > 38°C triggers heat advisory
 
-### 1.3 Match Timeline Phases
+### [x] 1.3 Match Timeline Phases
 Currently the sim only models pre-kickoff arrivals. Add all phases from PROJECT.md §5.4:
 
 | Phase | SimTime | Behavior Changes |

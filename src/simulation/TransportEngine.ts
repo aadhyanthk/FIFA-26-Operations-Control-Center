@@ -1,8 +1,10 @@
 import type { StadiumState } from '../store/stadiumStore';
+import type { StadiumEvent } from './EventEngine';
 
 export class TransportEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const transport = { ...state.transport };
+    const newIncidents: StadiumEvent[] = [...state.incidents];
     
     let incidentDelay = 0;
     let totalActiveIncidents = 0;
@@ -21,17 +23,63 @@ export class TransportEngine {
     } else {
       transport.trainDelays = Math.max(incidentDelay, transport.trainDelays - deltaTime * 0.05);
     }
+
+    if (transport.trainDelays > 30) {
+      const exists = newIncidents.find(i => i.type === 'transport' && i.title.includes('Major Train Delay') && i.status !== 'resolved');
+      if (!exists) {
+        newIncidents.unshift({
+          id: `ev-trn-delay-${Date.now()}`,
+          timestamp: state.simTime,
+          type: 'transport',
+          severity: 'high',
+          title: `Major Train Delay`,
+          description: `Train delays are currently estimated at ${Math.floor(transport.trainDelays)} minutes. Expect a surge when service resumes.`,
+          location: 'Transit Hub',
+          relatedEvents: [],
+          status: 'new'
+        });
+      }
+    }
     
     // Train delays occasionally resolve
     if (transport.trainDelays > 0 && Math.random() < 0.02) {
       // Delay resolves, sending a batch of passengers
-      transport.incomingPassengers += transport.trainDelays * 50; 
+      const surgeAmount = transport.trainDelays * 50;
+      transport.incomingPassengers += surgeAmount; 
+
+      if (surgeAmount > 500) {
+        newIncidents.unshift({
+          id: `ev-trn-surge-${Date.now()}`,
+          timestamp: state.simTime,
+          type: 'transport',
+          severity: 'medium',
+          title: `Transit Delay Resolved - Incoming Surge`,
+          description: `A train delay has resolved. An unexpected surge of ~${Math.floor(surgeAmount)} passengers is arriving at the Transit Hub.`,
+          location: 'Transit Hub',
+          relatedEvents: [],
+          status: 'new'
+        });
+      }
       transport.trainDelays = 0;
     }
     
     // Bus delays resolve
     if (transport.busDelays > 0 && Math.random() < 0.03) {
-      transport.incomingPassengers += transport.busDelays * 20;
+      const surgeAmount = transport.busDelays * 20;
+      transport.incomingPassengers += surgeAmount;
+      if (surgeAmount > 500) {
+        newIncidents.unshift({
+          id: `ev-bus-surge-${Date.now()}`,
+          timestamp: state.simTime,
+          type: 'transport',
+          severity: 'medium',
+          title: `Bus Delay Resolved - Incoming Surge`,
+          description: `A bus delay has resolved. An unexpected surge of ~${Math.floor(surgeAmount)} passengers is arriving.`,
+          location: 'Transit Hub',
+          relatedEvents: [],
+          status: 'new'
+        });
+      }
       transport.busDelays = 0;
     }
     
@@ -84,6 +132,6 @@ export class TransportEngine {
       transport.dispersingCrowds = remainingCrowds;
     }
     
-    return { transport };
+    return { transport, incidents: newIncidents };
   }
 }
