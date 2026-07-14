@@ -1,16 +1,28 @@
 import React from 'react';
 import { useStadiumStore } from '../../store/stadiumStore';
 import { MetricCard } from '../dashboard/MetricCard';
+import { Sparkline } from '../common/Sparkline';
 
 export const GatesTab: React.FC = () => {
   const gates = useStadiumStore(state => state.gates);
+  const historicalMetrics = useStadiumStore(state => state.historicalMetrics);
 
   return (
     <div className="flex-col gap-md">
       <h2 className="text-primary mb-md mt-0">Gate Operations</h2>
       
       <div className="grid-auto gap-md">
-        {Object.values(gates).map(gate => (
+        {Object.values(gates).map(gate => {
+          
+          let queueTrendColor = 'var(--text-secondary)';
+          if (historicalMetrics.timeline.length >= 2) {
+            const first = historicalMetrics.timeline[0].gatesQueue?.[gate.id] || 0;
+            const last = historicalMetrics.timeline[historicalMetrics.timeline.length - 1].gatesQueue?.[gate.id] || 0;
+            if (last > first) queueTrendColor = 'var(--critical)';
+            else if (last < first) queueTrendColor = 'var(--ok)';
+          }
+
+          return (
           <div key={gate.id} className="card flex-col gap-md">
             <div className="flex-row justify-between items-center">
               <h3 className="m-0 text-primary">Gate {gate.id}</h3>
@@ -35,11 +47,22 @@ export const GatesTab: React.FC = () => {
             </div>
 
             <div className="grid-2 gap-md">
-              <MetricCard 
-                title="Queue" 
-                value={Math.round(gate.queueLength)} 
-                status={gate.queueLength > 500 ? 'warning' : 'ok'} 
-              />
+              <div className="flex-col">
+                <MetricCard 
+                  title="Queue" 
+                  value={Math.round(gate.queueLength)} 
+                  status={gate.queueLength > 500 ? 'warning' : 'ok'} 
+                />
+                <div className="mt-xs flex-row justify-end">
+                  <Sparkline 
+                    data={historicalMetrics.timeline} 
+                    dataKey={`gatesQueue.${gate.id}`} 
+                    width={60} 
+                    height={20} 
+                    color={queueTrendColor}
+                  />
+                </div>
+              </div>
               <MetricCard 
                 title="Wait Time" 
                 value={gate.averageWaitTime} 
@@ -94,7 +117,7 @@ export const GatesTab: React.FC = () => {
               </div>
             </div>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );

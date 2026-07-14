@@ -93,7 +93,14 @@ export interface StadiumState {
     lastQueue: number;
     lastTrendUpdate: number;
     lastTimelineUpdate: number;
-    timeline: { time: number; occupancy: number; queue: number; incidents: number; teamsAvailable: number }[];
+    timeline: { 
+      time: number; 
+      occupancy: number; 
+      queue: number; 
+      incidents: number; 
+      teamsAvailable: number;
+      gatesQueue: Record<string, number>;
+    }[];
   };
   
   // Actions

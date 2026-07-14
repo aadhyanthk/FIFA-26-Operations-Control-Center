@@ -49,7 +49,19 @@ export class SimulationEngine {
 
     // Timeline update (every 10 seconds for sparklines, keep last 5 mins = 300s = 30 points max)
     if (currentState.simTime - newMetrics.lastTimelineUpdate >= 10) {
-       const newPoint = { time: currentState.simTime, occupancy: totalOccupancy, queue: totalQueue, incidents: activeIncidents, teamsAvailable };
+       const gatesQueue = Object.values(currentState.gates).reduce((acc, g) => {
+         acc[g.id] = g.queueLength;
+         return acc;
+       }, {} as Record<string, number>);
+
+       const newPoint = { 
+         time: currentState.simTime, 
+         occupancy: totalOccupancy, 
+         queue: totalQueue, 
+         incidents: activeIncidents, 
+         teamsAvailable,
+         gatesQueue 
+       };
        newMetrics.timeline = [...newMetrics.timeline.slice(-30), newPoint];
        newMetrics.lastTimelineUpdate = currentState.simTime;
        metricsChanged = true;
