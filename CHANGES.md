@@ -155,10 +155,10 @@ The current map is circles and rectangles on a plain canvas. It needs to look li
 - Stadium map should take ~60% of the vertical space (it's the hero element)
 - Right column: AI Predictive Monitor at top, then Incident Feed filling remaining space
 
-### 2.7 Gates Tab — Richer Gate Cards
+### [x] 2.7 Gates Tab — Richer Gate Cards
 - Each gate card should show:
   - Gate name + status badge (OPEN/CLOSED) + toggle button
-  - Queue length with sparkline (last 5 min history)
+  - Queue length with sparkline (last 5 min history) (already implemented)
   - Wait time with color coding (green < 10min, yellow < 20min, red > 20min)
   - Throughput rate (people/hour, current vs capacity)
   - Active lanes indicator (visual: 4 boxes, filled = active)
@@ -287,7 +287,7 @@ The Sparkline.tsx in /common is referenced in PROJECT.md but never implemented. 
 - Color: green (trending down for queues), red (trending up for queues)
 - Used inside MetricCards and GateCards
 
-### 4.4 SeverityBadge Component Enhancement
+### [x] 4.4 SeverityBadge Component Enhancement
 Create a proper SeverityBadge.tsx that's used consistently across all incident displays:
 - Pill shape with background color matching severity
 - Pulsing animation for critical badges
@@ -322,7 +322,7 @@ Execute in this order. Each phase builds on the previous one.
 3. [x] **Stadium Map** (Phase 2.2) — The visual centerpiece
 4. [x] **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
 5. [x] **IncidentFeed** (Phase 2.5) — Core operational UI
-6. **Gates Tab** (Phase 2.7) — Most-used operational tab
+6. [x] **Gates Tab** (Phase 2.7) — Most-used operational tab
 7. **ToolExecutor + Agent** (Phase 3.2, 3.1, 3.3) — Make the AI actually work
 8. **AI Panel + Execution Plans** (Phase 2.10, 3.4) — The differentiator
 9. **Department Tabs** (Phase 2.8) — Unique operational views

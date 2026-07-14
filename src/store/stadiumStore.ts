@@ -73,6 +73,7 @@ export interface StadiumState {
   tickCount: number;
   speed: 1 | 2 | 5 | 10;
   isPaused: boolean;
+  announcementBanner: string | null;
   activeMatchPhase: string;
 
   // Subsystem states
@@ -113,6 +114,7 @@ export interface StadiumState {
   updateState: (partial: Partial<StadiumState>) => void;
   addIncident: (event: StadiumEvent) => void;
   resolveIncident: (id: string) => void;
+  setAnnouncementBanner: (message: string | null) => void;
 }
 
 export const useStadiumStore = create<StadiumState>((set) => ({
@@ -120,6 +122,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
   tickCount: 0,
   speed: 1,
   isPaused: true,
+  announcementBanner: null,
   activeMatchPhase: 'Pre-Game',
 
   weather: {
@@ -217,5 +220,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
 
   resolveIncident: (id) => set((state) => ({
     incidents: state.incidents.map(i => i.id === id ? { ...i, status: 'resolved' } : i)
-  }))
+  })),
+  
+  setAnnouncementBanner: (message) => set({ announcementBanner: message })
 }));

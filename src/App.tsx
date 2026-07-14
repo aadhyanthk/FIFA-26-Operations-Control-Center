@@ -17,7 +17,7 @@ import { SimulationEngine } from './simulation/SimulationEngine';
 const engine = new SimulationEngine();
 
 function App() {
-  const { isPaused, speed, updateState } = useStadiumStore();
+  const { isPaused, speed, announcementBanner, setAnnouncementBanner } = useStadiumStore();
   const { activeTab } = useUIStore();
   const stateRef = useRef(useStadiumStore.getState());
 
@@ -32,7 +32,6 @@ function App() {
 
     const intervalId = setInterval(() => {
       const currentState = stateRef.current;
-      // At speed multiplier n, the interval is 1000/n ms and each tick advances sim time by 1 second
       const updates = engine.tick(currentState, 1);
       
       useStadiumStore.getState().tick(1);
@@ -47,6 +46,39 @@ function App() {
     <div className="layout-root">
       <TopBar />
       <TabBar />
+
+      {announcementBanner && (
+        <div 
+          style={{
+            position: 'absolute',
+            top: '88px',
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            backgroundColor: 'var(--info-bg)',
+            color: 'var(--info)',
+            borderBottom: '1px solid var(--info-border)',
+            padding: '8px 16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontWeight: 500,
+            animation: 'slideInRight 0.3s ease-out'
+          }}
+        >
+          <div className="flex-row items-center gap-sm">
+            <span>📢</span>
+            <span>{announcementBanner}</span>
+          </div>
+          <button 
+            onClick={() => setAnnouncementBanner(null)}
+            className="btn btn--sm btn--ghost"
+            style={{ color: 'var(--info)' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       
       {/* Main Content Area */}
       <div className="flex-row w-full flex-1" style={{
