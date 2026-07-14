@@ -150,7 +150,7 @@ The current map is circles and rectangles on a plain canvas. It needs to look li
 - Auto-scroll to new critical events
 - Show total count badge on each filter tab
 
-### 2.6 Overview Tab Layout
+### [x] 2.6 Overview Tab Layout
 - Dashboard weather strip: Temperature, Rain, Wind, Humidity as compact inline indicators
 - Stadium map should take ~60% of the vertical space (it's the hero element)
 - Right column: AI Predictive Monitor at top, then Incident Feed filling remaining space
@@ -280,7 +280,7 @@ Per PROJECT.md §5.5:
 - Subtle click on button presses
 - Use Web Audio API (no external audio files needed — generate tones programmatically)
 
-### 4.3 Sparkline Component
+### [x] 4.3 Sparkline Component
 The Sparkline.tsx in /common is referenced in PROJECT.md but never implemented. Build it using Recharts:
 - Tiny (60px × 20px) line chart
 - No axes, no labels — just the line
@@ -320,7 +320,7 @@ Execute in this order. Each phase builds on the previous one.
 1. [x] **CSS Refactor** (Phase 2.1) — Foundation for everything else 
 2. [x] **Simulation Engines** (Phase 1.1-1.4) — The sim must be believable first
 3. [x] **Stadium Map** (Phase 2.2) — The visual centerpiece
-4. **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
+4. [x] **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
 5. **IncidentFeed** (Phase 2.5) — Core operational UI
 6. **Gates Tab** (Phase 2.7) — Most-used operational tab
 7. **ToolExecutor + Agent** (Phase 3.2, 3.1, 3.3) — Make the AI actually work
