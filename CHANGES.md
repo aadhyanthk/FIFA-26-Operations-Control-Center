@@ -214,7 +214,7 @@ The Agent.ts parsePlan method currently returns a hardcoded mock. It needs to:
 - If no tool_calls (model doesn't support it), fall back to parsing structured JSON from the response content
 - Build a proper ExecutionPlan with real reasoning, root cause, and estimated impact from the LLM response
 
-### 3.2 ToolExecutor — All 19 Tools
+### [x] 3.2 ToolExecutor — All 19 Tools
 Currently only open_gate, close_gate, and adjust_gate_lanes are implemented. Implement ALL tools from PROJECT.md §6.3:
 
 **Operations tools:**
