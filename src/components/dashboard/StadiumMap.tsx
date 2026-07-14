@@ -37,11 +37,26 @@ export const StadiumMap: React.FC = () => {
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      // To get accurate coordinates on the internal 800x600 canvas
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const x = ((e.clientX - rect.left) * scaleX) / canvas.width;
-      const y = ((e.clientY - rect.top) * scaleY) / canvas.height;
+      
+      // Account for object-fit: contain
+      const canvasRatio = canvas.width / canvas.height;
+      const rectRatio = rect.width / rect.height;
+      
+      let renderWidth = rect.width;
+      let renderHeight = rect.height;
+      let offsetX = 0;
+      let offsetY = 0;
+      
+      if (rectRatio > canvasRatio) {
+         renderWidth = rect.height * canvasRatio;
+         offsetX = (rect.width - renderWidth) / 2;
+      } else {
+         renderHeight = rect.width / canvasRatio;
+         offsetY = (rect.height - renderHeight) / 2;
+      }
+      
+      const x = (e.clientX - rect.left - offsetX) / renderWidth;
+      const y = (e.clientY - rect.top - offsetY) / renderHeight;
       
       const state = useStadiumStore.getState();
       let hoveredZone = null;
@@ -233,12 +248,16 @@ export const StadiumMap: React.FC = () => {
       
       Object.values(state.teams).forEach(team => {
         let locCoords: Coordinates | null = null;
+        let isGate = false;
         
         const zone = stadiumLayout.zones.find(z => z.name === team.location);
         if (zone) locCoords = zone.center;
         else {
           const gate = stadiumLayout.gates.find(g => `Gate ${g.id}` === team.location);
-          if (gate) locCoords = gate.location;
+          if (gate) {
+            locCoords = gate.location;
+            isGate = true;
+          }
         }
 
         if (locCoords) {
@@ -248,7 +267,8 @@ export const StadiumMap: React.FC = () => {
            
            // Apply expanding offset if multiple teams are at same location
            const cx = locCoords.x * width + (offsetCount * 12) - (offsetCount > 0 ? 6 : 0);
-           const cy = locCoords.y * height + (offsetCount * 5);
+           // Offset Y so it doesn't block gate text which is at cy + 4
+           const cy = locCoords.y * height + (offsetCount * 5) + (isGate ? 18 : 0);
            
            ctx.font = '16px Arial';
            ctx.textAlign = 'center';
