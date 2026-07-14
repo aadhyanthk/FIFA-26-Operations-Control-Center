@@ -21,55 +21,26 @@ export const StatusBar: React.FC = () => {
   };
 
   return (
-    <div style={{
-      height: '32px',
-      backgroundColor: 'var(--bg-secondary)',
-      borderTop: '1px solid var(--border)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 var(--space-md)',
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 100
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-        <div className="mono" style={{ fontSize: '11px', color: 'var(--text-primary)' }}>
-          Sim: {formatSimTime(simTime)}
-        </div>
-        <div className="mono" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-          Tick: {tickCount}
-        </div>
-        <div className="mono" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-          Events: {useStadiumStore(state => state.incidents.length)}
-        </div>
+    <div className="statusbar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }}>
+      <div className="flex-row items-center gap-md">
+        <div className="mono text-xs text-primary">Sim: {formatSimTime(simTime)}</div>
+        <div className="mono text-xs text-secondary">Tick: {tickCount}</div>
+        <div className="mono text-xs text-secondary">Events: {useStadiumStore(state => state.incidents.length)}</div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+      <div className="flex-row items-center gap-sm">
         <button 
           onClick={() => setSpeed(speed === 10 ? 1 : (speed === 1 ? 2 : (speed === 2 ? 5 : 10)))}
-          style={{ 
-          color: 'var(--text-primary)', 
-          fontSize: '12px', 
-          backgroundColor: 'var(--bg-tertiary)',
-          padding: '2px 8px',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid var(--border)'
-        }}>
+          className="btn btn--sm text-primary"
+          style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}
+        >
           ▶ {speed}x
         </button>
         <button 
           onClick={togglePause}
-          style={{ 
-          color: isPaused ? 'var(--warning)' : 'var(--text-secondary)', 
-          fontSize: '12px', 
-          backgroundColor: 'transparent',
-          padding: '2px 8px',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid transparent'
-        }}>
+          className="btn btn--sm btn--ghost"
+          style={{ color: isPaused ? 'var(--warning)' : 'var(--text-secondary)' }}
+        >
           {isPaused ? '▶' : '⏸'}
         </button>
         <button
@@ -93,16 +64,9 @@ export const StatusBar: React.FC = () => {
               status: 'new'
             });
           }}
-          style={{ 
-          color: 'var(--accent)', 
-          fontSize: '12px', 
-          backgroundColor: 'transparent',
-          padding: '2px 8px',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid var(--accent)',
-          marginLeft: 'var(--space-md)',
-          cursor: 'pointer'
-        }}>
+          className="btn btn--sm"
+          style={{ color: 'var(--accent)', border: '1px solid var(--accent)', marginLeft: 'var(--space-md)' }}
+        >
           + Event
         </button>
       </div>

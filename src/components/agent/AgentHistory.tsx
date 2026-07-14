@@ -6,9 +6,9 @@ export const AgentHistory: React.FC = () => {
   const plans = useAgentStore(state => state.plans);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+    <div className="flex-col gap-md">
       {plans.length === 0 ? (
-        <div style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-xl)' }}>
+        <div className="text-muted text-center mt-xl">
           No agent execution plans yet.
         </div>
       ) : (

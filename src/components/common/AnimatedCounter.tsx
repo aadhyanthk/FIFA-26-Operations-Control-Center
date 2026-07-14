@@ -25,12 +25,7 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ value, format 
   }
 
   return (
-    <span className="mono" style={{ 
-      fontSize: '28px', 
-      fontWeight: 700,
-      color: 'var(--text-primary)',
-      display: 'inline-block'
-    }}>
+    <span className="mono font-bold text-primary" style={{ fontSize: '28px', display: 'inline-block' }}>
       {formatted}
     </span>
   );

@@ -14,17 +14,12 @@ export const OverviewTab: React.FC = () => {
   const dispersingCrowdsTotal = transport.dispersingCrowds?.reduce((acc, c) => acc + c.amount, 0) || 0;
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 350px',
-      gap: 'var(--space-md)',
-      height: '100%'
-    }}>
+    <div className="grid-2 h-full gap-md" style={{ gridTemplateColumns: '1fr 350px' }}>
       {/* Left Column */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', minHeight: 0 }}>
+      <div className="flex-col gap-md flex-1">
         
         {/* Top Metrics Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-md)' }}>
+        <div className="grid-4 gap-md">
           <MetricCard 
             title="Total Inside" 
             value={Math.round(totalOccupancy)} 
@@ -51,17 +46,17 @@ export const OverviewTab: React.FC = () => {
         </div>
 
         {/* Map */}
-        <div style={{ flex: 1, minHeight: 0 }}>
+        <div className="flex-1">
           <StadiumMap />
         </div>
 
       </div>
 
       {/* Right Column */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', minHeight: 0 }}>
+      <div className="flex-col gap-md flex-1">
         <PredictiveAlerts />
         
-        <div style={{ flex: 1, minHeight: 0 }}>
+        <div className="flex-1">
           <IncidentFeed />
         </div>
       </div>

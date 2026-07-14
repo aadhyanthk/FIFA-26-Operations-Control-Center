@@ -6,34 +6,14 @@ export const IncidentFeed: React.FC = () => {
   const incidents = useStadiumStore(state => state.incidents);
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      backgroundColor: 'var(--bg-secondary)',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--border)',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        padding: 'var(--space-md)',
-        borderBottom: '1px solid var(--border)',
-        fontWeight: 600,
-        color: 'var(--text-primary)'
-      }}>
+    <div className="card flex-col p-0 h-full" style={{ overflow: 'hidden' }}>
+      <div className="font-semibold text-primary p-md" style={{ borderBottom: '1px solid var(--border)' }}>
         Incident Feed
       </div>
       
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: 'var(--space-md)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-sm)'
-      }}>
+      <div className="flex-1 p-md flex-col gap-sm" style={{ overflowY: 'auto' }}>
         {incidents.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-xl)' }}>
+          <div className="text-muted text-center mt-xl">
             No active incidents
           </div>
         ) : (

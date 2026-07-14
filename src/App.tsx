@@ -43,32 +43,19 @@ function App() {
   }, [isPaused, speed]);
 
   return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative'
-    }}>
+    <div className="layout-root">
       <TopBar />
       <TabBar />
       
       {/* Main Content Area */}
-      <div style={{
-        flex: 1,
+      <div className="flex-row w-full flex-1" style={{
         marginTop: '88px', // TopBar(48) + TabBar(40)
         marginBottom: '32px', // StatusBar(32)
         position: 'relative',
-        display: 'flex',
-        flexDirection: 'row',
         overflow: 'hidden'
       }}>
         {/* Tab Content Placeholder */}
-        <div style={{
-          flex: 1,
-          padding: 'var(--space-md)',
-          overflowY: 'auto'
-        }}>
+        <div className="flex-1 p-md" style={{ overflowY: 'auto' }}>
           {activeTab === 'Overview' && <OverviewTab />}
           {activeTab === 'Gates' && <GatesTab />}
           {activeTab === 'Security' && <SecurityTab />}

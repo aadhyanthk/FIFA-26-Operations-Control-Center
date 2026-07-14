@@ -8,40 +8,20 @@ export const AIPanel: React.FC = () => {
   if (!aiPanelOpen) return null;
 
   return (
-    <div style={{
-      width: '350px',
-      height: '100%',
-      backgroundColor: 'var(--bg-secondary)',
-      borderLeft: '1px solid var(--border)',
-      display: 'flex',
-      flexDirection: 'column',
-      animation: 'panelSlideIn 0.3s ease-out'
-    }}>
-      <div style={{
-        padding: 'var(--space-md)',
-        borderBottom: '1px solid var(--border)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+    <div className="panel" style={{ width: '350px', height: '100%', animation: 'panelSlideIn 0.3s ease-out' }}>
+      <div className="panel-header">
+        <div className="font-semibold text-primary">
           AI Agent Activity
         </div>
         <button
+          className="text-secondary text-lg"
           onClick={() => setAiPanelOpen(false)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-secondary)',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
         >
           ×
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-md)' }}>
+      <div className="panel-body">
         <AgentHistory />
       </div>
     </div>

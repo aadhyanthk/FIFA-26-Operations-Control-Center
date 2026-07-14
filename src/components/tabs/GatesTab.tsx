@@ -6,32 +6,16 @@ export const GatesTab: React.FC = () => {
   const gates = useStadiumStore(state => state.gates);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-      <h2 style={{ color: 'var(--text-primary)', marginBottom: 'var(--space-md)' }}>Gate Operations</h2>
+    <div className="flex-col gap-md">
+      <h2 className="text-primary mb-md mt-0">Gate Operations</h2>
       
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-        gap: 'var(--space-md)'
-      }}>
+      <div className="grid-auto gap-md">
         {Object.values(gates).map(gate => (
-          <div key={gate.id} style={{
-            backgroundColor: 'var(--bg-secondary)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--border)',
-            padding: 'var(--space-md)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
-              <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Gate {gate.id}</h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                <div style={{ 
-                  padding: '4px 8px', 
-                  borderRadius: 'var(--radius-sm)', 
-                  backgroundColor: gate.isOpen ? 'var(--ok-bg)' : 'var(--critical-bg)',
-                  color: gate.isOpen ? 'var(--ok)' : 'var(--critical)',
-                  fontSize: '12px',
-                  fontWeight: 600
-                }}>
+          <div key={gate.id} className="card">
+            <div className="flex-row justify-between items-center mb-md">
+              <h3 className="m-0 text-primary">Gate {gate.id}</h3>
+              <div className="flex-row items-center gap-sm">
+                <div className={`badge ${gate.isOpen ? 'badge--ok' : 'badge--critical'}`}>
                   {gate.isOpen ? 'OPEN' : 'CLOSED'}
                 </div>
                 <button
@@ -43,22 +27,14 @@ export const GatesTab: React.FC = () => {
                       }
                     });
                   }}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text-primary)',
-                    padding: '2px 8px',
-                    borderRadius: 'var(--radius-sm)',
-                    cursor: 'pointer',
-                    fontSize: '11px'
-                  }}
+                  className="btn btn--sm btn--ghost"
                 >
                   Toggle
                 </button>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
+            <div className="grid-2 gap-md">
               <MetricCard 
                 title="Queue" 
                 value={Math.round(gate.queueLength)} 
@@ -72,17 +48,14 @@ export const GatesTab: React.FC = () => {
               />
             </div>
 
-            <div style={{ marginTop: 'var(--space-md)', fontSize: '13px', color: 'var(--text-secondary)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <div className="mt-md text-base text-secondary">
+              <div className="flex-row justify-between mb-xs">
                 <span>Active Lanes</span>
                 <span className="mono">{gate.activeLanes} / 4</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div className="flex-row justify-between">
                 <span>Scanner Status</span>
-                <span style={{ 
-                  color: gate.scannerStatus === 'operational' ? 'var(--ok)' : 
-                         gate.scannerStatus === 'degraded' ? 'var(--warning)' : 'var(--critical)' 
-                }}>
+                <span className={`font-medium ${gate.scannerStatus === 'operational' ? 'text-ok' : gate.scannerStatus === 'degraded' ? 'text-warning' : 'text-critical'}`} style={{ color: `var(--${gate.scannerStatus === 'operational' ? 'ok' : gate.scannerStatus === 'degraded' ? 'warning' : 'critical'})` }}>
                   {gate.scannerStatus.toUpperCase()}
                 </span>
               </div>

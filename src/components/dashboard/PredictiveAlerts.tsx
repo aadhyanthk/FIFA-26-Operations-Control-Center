@@ -25,53 +25,26 @@ export const PredictiveAlerts: React.FC = () => {
 
   if (!alertMessage) {
     return (
-      <div style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-md)',
-        padding: 'var(--space-md)',
-        color: 'var(--text-secondary)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--space-md)'
-      }}>
-        <div style={{ fontSize: '18px', filter: 'grayscale(100%)' }}>🤖</div>
+      <div className="card flex-row gap-md items-center text-secondary">
+        <div className="text-lg" style={{ filter: 'grayscale(100%)' }}>🤖</div>
         <div>
-          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>AI Predictive Monitor</div>
-          <div style={{ fontSize: '13px' }}>All systems nominal. No predictive risks detected.</div>
+          <div className="font-semibold text-primary">AI Predictive Monitor</div>
+          <div className="text-base">All systems nominal. No predictive risks detected.</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{
-      backgroundColor: 'var(--info-bg)',
-      border: '1px solid var(--info)',
-      borderRadius: 'var(--radius-md)',
-      padding: 'var(--space-md)',
-      color: 'var(--text-primary)',
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: 'var(--space-md)'
-    }}>
-      <div style={{ fontSize: '18px' }}>🤖</div>
+    <div className="card flex-row gap-md items-start text-primary" style={{ backgroundColor: 'var(--info-bg)', borderColor: 'var(--info)' }}>
+      <div className="text-lg">🤖</div>
       <div>
-        <div style={{ fontWeight: 600, marginBottom: '4px' }}>AI Predictive Alert</div>
-        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+        <div className="font-semibold mb-xs">AI Predictive Alert</div>
+        <div className="text-base text-secondary">
           {alertMessage}
         </div>
-        <div style={{ marginTop: 'var(--space-sm)' }}>
-          <button style={{
-            backgroundColor: 'var(--accent)',
-            color: 'white',
-            border: 'none',
-            padding: '4px 12px',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '12px',
-            fontWeight: 500,
-            cursor: 'pointer'
-          }}>
+        <div className="mt-sm">
+          <button className="btn btn--sm btn--primary">
             Generate Plan
           </button>
         </div>

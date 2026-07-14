@@ -95,32 +95,16 @@ export const StadiumMap: React.FC = () => {
   }, []);
 
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'var(--bg-secondary)',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--border)',
-      position: 'relative',
-      overflow: 'hidden',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <div style={{
-        position: 'absolute',
-        top: '16px',
-        left: '16px',
-        fontWeight: 600,
-        color: 'var(--text-primary)'
-      }}>
+    <div className="card flex-col items-center justify-center p-0" style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+      <div className="font-semibold text-primary" style={{ position: 'absolute', top: '16px', left: '16px' }}>
         MetLife Stadium Live Map
       </div>
       <canvas 
         ref={canvasRef} 
         width={800} 
         height={600}
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        className="w-full h-full"
+        style={{ objectFit: 'contain' }}
       />
     </div>
   );

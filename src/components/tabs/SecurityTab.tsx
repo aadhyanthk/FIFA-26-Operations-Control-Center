@@ -9,30 +9,30 @@ export const SecurityTab: React.FC = () => {
   const securityIncidents = incidents.filter(i => i.type === 'security' && i.status !== 'resolved');
 
   return (
-    <div style={{ padding: 'var(--space-md)', display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="p-md flex-col gap-xl">
+      <div className="flex-row justify-between items-center">
         <div>
-          <h2 style={{ color: 'var(--text-primary)', margin: 0 }}>Security Operations</h2>
-          <div style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>
+          <h2 className="text-primary m-0">Security Operations</h2>
+          <div className="text-secondary text-base mt-xs">
             {securityTeams.filter(t => t.status === 'busy').length} / {securityTeams.length} Teams Deployed
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-md)' }}>
+      <div className="grid-auto gap-md">
         
         {/* Teams List */}
-        <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', padding: 'var(--space-md)', border: '1px solid var(--border)' }}>
-          <h3 style={{ color: 'var(--text-primary)', margin: '0 0 var(--space-md) 0', fontSize: '16px' }}>Active Units</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+        <div className="card">
+          <h3 className="text-primary text-lg m-0 mb-md">Active Units</h3>
+          <div className="flex-col gap-sm">
             {securityTeams.map(team => (
-              <div key={team.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'var(--space-sm)', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: team.status === 'idle' ? 'var(--ok)' : 'var(--warning)' }}></div>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Unit {team.id.toUpperCase()}</span>
+              <div key={team.id} className="flex-row justify-between items-center p-sm" style={{ backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
+                <div className="flex-row items-center gap-sm">
+                  <div className={`status-dot ${team.status === 'idle' ? 'status-dot--active' : 'status-dot--warning'}`}></div>
+                  <span className="text-primary font-medium">Unit {team.id.toUpperCase()}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{team.location}</span>
+                <div className="flex-row items-center gap-sm">
+                  <span className="text-secondary text-sm">{team.location}</span>
                   <button
                     onClick={() => {
                       const newStatus = team.status === 'idle' ? 'busy' : 'idle';
@@ -43,15 +43,8 @@ export const SecurityTab: React.FC = () => {
                         }
                       });
                     }}
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: 'var(--accent)',
-                      border: '1px solid var(--accent)',
-                      padding: '2px 8px',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '11px',
-                      cursor: 'pointer'
-                    }}
+                    className="btn btn--sm"
+                    style={{ color: 'var(--accent)', border: '1px solid var(--accent)' }}
                   >
                     {team.status === 'idle' ? 'Deploy' : 'Recall'}
                   </button>
@@ -62,13 +55,13 @@ export const SecurityTab: React.FC = () => {
         </div>
 
         {/* Gate Scanner Status */}
-        <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', padding: 'var(--space-md)', border: '1px solid var(--border)' }}>
-          <h3 style={{ color: 'var(--text-primary)', margin: '0 0 var(--space-md) 0', fontSize: '16px' }}>Perimeter Scanners</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-sm)' }}>
+        <div className="card">
+          <h3 className="text-primary text-lg m-0 mb-md">Perimeter Scanners</h3>
+          <div className="grid-2 gap-sm">
             {Object.values(gates).map(gate => (
-              <div key={gate.id} style={{ padding: 'var(--space-sm)', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: `1px solid var(--${gate.scannerStatus === 'operational' ? 'ok' : gate.scannerStatus === 'degraded' ? 'warning' : 'critical'}-border)` }}>
-                <div style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '13px' }}>Gate {gate.id}</div>
-                <div style={{ color: `var(--${gate.scannerStatus === 'operational' ? 'ok' : gate.scannerStatus === 'degraded' ? 'warning' : 'critical'})`, fontSize: '11px', textTransform: 'uppercase', marginTop: '2px' }}>
+              <div key={gate.id} className="p-sm" style={{ backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: `1px solid var(--${gate.scannerStatus === 'operational' ? 'ok' : gate.scannerStatus === 'degraded' ? 'warning' : 'critical'}-border)` }}>
+                <div className="text-primary font-medium text-base">Gate {gate.id}</div>
+                <div className="text-xs uppercase mt-xs" style={{ color: `var(--${gate.scannerStatus === 'operational' ? 'ok' : gate.scannerStatus === 'degraded' ? 'warning' : 'critical'})` }}>
                   {gate.scannerStatus}
                 </div>
               </div>
@@ -79,13 +72,13 @@ export const SecurityTab: React.FC = () => {
 
       {/* Security Incidents */}
       <div>
-        <h3 style={{ color: 'var(--text-primary)', margin: '0 0 var(--space-md) 0', fontSize: '16px' }}>Active Security Incidents</h3>
+        <h3 className="text-primary text-lg m-0 mb-md">Active Security Incidents</h3>
         {securityIncidents.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', fontSize: '13px', padding: 'var(--space-md)', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+          <div className="text-muted text-base p-md text-center" style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
             No active security incidents.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+          <div className="flex-col gap-sm">
             {securityIncidents.map(incident => (
               <IncidentCard key={incident.id} incident={incident} onClick={() => {}} />
             ))}

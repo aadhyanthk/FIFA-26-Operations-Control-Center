@@ -11,15 +11,7 @@ interface PlanActionProps {
 
 export const PlanAction: React.FC<PlanActionProps> = ({ action }) => {
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'var(--space-sm)',
-      padding: '8px',
-      backgroundColor: 'var(--bg-tertiary)',
-      borderRadius: 'var(--radius-sm)',
-      border: '1px solid var(--border)'
-    }}>
+    <div className="flex-row items-center gap-sm p-sm" style={{ backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
       <div style={{
         width: '12px',
         height: '12px',
@@ -28,15 +20,15 @@ export const PlanAction: React.FC<PlanActionProps> = ({ action }) => {
                         action.status === 'failed' ? 'var(--critical)' :
                         action.status === 'executing' ? 'var(--warning)' : 'var(--text-muted)'
       }} />
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>
+      <div className="flex-1">
+        <div className="text-base font-medium text-primary">
           {action.tool}
         </div>
-        <div className="mono" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+        <div className="mono text-xs text-secondary">
           {JSON.stringify(action.params)}
         </div>
       </div>
-      <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+      <div className="text-sm text-muted uppercase">
         {action.status}
       </div>
     </div>

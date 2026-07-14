@@ -13,50 +13,29 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   title, value, format = 'number', trend, status = 'ok' 
 }) => {
   return (
-    <div style={{
-      backgroundColor: 'var(--bg-secondary)',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--border)',
-      padding: 'var(--space-md)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--space-sm)'
-    }}>
-      <div style={{ 
-        color: 'var(--text-secondary)', 
-        fontSize: '12px',
-        fontWeight: 500,
-        textTransform: 'uppercase',
-        letterSpacing: '0.08em'
-      }}>
+    <div className="card flex-col gap-sm">
+      <div className="text-secondary text-xs font-medium uppercase tracking-wider">
         {title}
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-md)' }}>
+      <div className="flex-row gap-md" style={{ alignItems: 'baseline' }}>
         <AnimatedCounter value={value} format={format} />
         
         {trend !== undefined && (
-          <div style={{ 
-            fontSize: '12px', 
-            fontWeight: 600,
-            color: trend > 0 ? 'var(--critical)' : 'var(--ok)' 
-          }}>
+          <div className="text-sm font-semibold" style={{ color: trend > 0 ? 'var(--critical)' : 'var(--ok)' }}>
             {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
           </div>
         )}
       </div>
 
-      <div style={{ 
-        width: '100%', 
+      <div className="w-full mt-xs" style={{ 
         height: '4px', 
         backgroundColor: 'var(--bg-tertiary)',
         borderRadius: '2px',
-        marginTop: 'var(--space-xs)',
         overflow: 'hidden'
       }}>
-        <div style={{
+        <div className="h-full" style={{
           width: '70%',
-          height: '100%',
           backgroundColor: `var(--${status})`
         }} />
       </div>
