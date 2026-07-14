@@ -88,7 +88,7 @@ export class FoodEngine {
         }
       }
 
-      if (fc.queueLength > 50) {
+      if (fc.queueLength > 1000) {
         const exists = newIncidents.find(i => i.type === 'crowd' && i.location === fc.name && i.title.includes('Queue') && i.status !== 'resolved');
         if (!exists) {
           newIncidents.unshift({
@@ -97,7 +97,7 @@ export class FoodEngine {
             type: 'crowd',
             severity: 'medium',
             title: `Long Queue at ${fc.name}`,
-            description: `Food court queue has exceeded 50 people (${Math.floor(fc.queueLength)} currently).`,
+            description: `Food court queue has exceeded 1000 people (${Math.floor(fc.queueLength)} currently).`,
             location: fc.name,
             relatedEvents: [],
             status: 'new'
@@ -129,8 +129,8 @@ export class FoodEngine {
       if (fc.queueLength > 500) {
         const candidates = fcList.filter(f => f.id !== fc.id && f.queueLength < 150);
         if (candidates.length > 0) {
-          // Transfer ~2% of the excess crowd per second (so it's gradual)
-          const leavingRate = (fc.queueLength - 500) * 0.02;
+          // Transfer ~10% of the excess crowd per second (so it's gradual)
+          const leavingRate = (fc.queueLength - 500) * 0.10;
           const leaving = Math.min(fc.queueLength - 500, leavingRate * deltaTime);
           
           if (leaving > 1) {

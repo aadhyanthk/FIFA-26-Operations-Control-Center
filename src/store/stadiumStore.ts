@@ -133,7 +133,7 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'B': { id: 'B', isOpen: true, capacityPerHour: 6000, queueLength: 0, activeLanes: 4, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
     'C': { id: 'C', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
     'D': { id: 'D', isOpen: true, capacityPerHour: 12000, queueLength: 0, activeLanes: 8, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
-    'E': { id: 'E', isOpen: false, capacityPerHour: 3000, queueLength: 0, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
+    'E': { id: 'E', isOpen: true, capacityPerHour: 3000, queueLength: 0, activeLanes: 2, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
     'F': { id: 'F', isOpen: true, capacityPerHour: 10000, queueLength: 0, activeLanes: 6, averageWaitTime: 0, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow' },
   },
   

@@ -18,7 +18,7 @@ export const IncidentFeed: React.FC = () => {
           </div>
         ) : (
           incidents.map(incident => (
-            <div key={incident.id} style={{ animation: 'slideInRight 0.3s ease-out' }}>
+            <div key={incident.id}>
               <IncidentCard incident={incident} onClick={(id) => console.log('clicked', id)} />
             </div>
           ))
