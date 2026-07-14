@@ -41,6 +41,55 @@ export class ToolExecutor {
         }
         return `Gate ${params.gate_id} not found.`;
 
+      case 'dispatch_medical': {
+        const teamId = params.team_id;
+        const targetLoc = params.location;
+        const team = store.teams[teamId];
+        
+        if (!team) return `Team ${teamId} not found.`;
+        if (team.status === 'busy') return `Team ${teamId} is already busy.`;
+
+        // Find the incident
+        const activeMedical = store.incidents.find(i => i.type === 'medical' && i.location === targetLoc && i.status !== 'resolved');
+        if (!activeMedical) return `No active medical incident found at ${targetLoc}.`;
+
+        // Calculate distance
+        const { stadiumLayout } = await import('../data/stadiumLayout');
+        let currentCoords = { x: 0.5, y: 0.5 };
+        let targetCoords = { x: 0.5, y: 0.5 };
+
+        const findCoords = (loc: string) => {
+          const zone = stadiumLayout.zones.find(z => z.name === loc);
+          if (zone) return zone.center;
+          const gate = stadiumLayout.gates.find(g => `Gate ${g.id}` === loc);
+          if (gate) return gate.location;
+          return null;
+        };
+
+        const c1 = findCoords(team.location);
+        const c2 = findCoords(targetLoc);
+        if (c1) currentCoords = c1;
+        if (c2) targetCoords = c2;
+
+        const distance = Math.sqrt(Math.pow(currentCoords.x - targetCoords.x, 2) + Math.pow(currentCoords.y - targetCoords.y, 2));
+        const travelTime = Math.max(30, Math.floor(distance * 300)); // arbitrary scale, min 30s
+
+        useStadiumStore.setState(state => ({
+          teams: {
+            ...state.teams,
+            [teamId]: {
+              ...team,
+              status: 'busy',
+              currentAssignment: activeMedical.id,
+              targetLocation: targetLoc,
+              arrivalTick: state.simTime + travelTime
+            }
+          }
+        }));
+
+        return `Dispatched ${teamId} to ${targetLoc}. Estimated arrival in ${travelTime} seconds.`;
+      }
+
       default:
         console.warn(`Tool ${toolName} not implemented yet`);
         return `Executed ${toolName} (mocked)`;

@@ -40,6 +40,9 @@ export interface TeamState {
   location: string;
   status: 'idle' | 'busy';
   currentAssignment?: string;
+  targetLocation?: string;
+  arrivalTick?: number;
+  resolveTick?: number;
 }
 
 export interface StadiumState {
@@ -123,6 +126,8 @@ export const useStadiumStore = create<StadiumState>((set) => ({
     'sec-2': { id: 'sec-2', department: 'security', location: 'Section 101-104', status: 'idle' },
     'med-1': { id: 'med-1', department: 'medical', location: 'East Concourse', status: 'idle' },
     'med-2': { id: 'med-2', department: 'medical', location: 'West Concourse', status: 'idle' },
+    'med-3': { id: 'med-3', department: 'medical', location: 'North Concourse', status: 'idle' },
+    'med-4': { id: 'med-4', department: 'medical', location: 'South Concourse', status: 'idle' },
     'mnt-1': { id: 'mnt-1', department: 'maintenance', location: 'Gate C', status: 'idle' },
     'cln-1': { id: 'cln-1', department: 'cleaning', location: 'South Concourse', status: 'idle' },
   },

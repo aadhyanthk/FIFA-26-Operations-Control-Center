@@ -95,7 +95,7 @@ Each event should have a realistic, context-aware title and description (not "Ma
 
 ## Phase 2: UI/UX Overhaul — "Make It Look Real"
 
-### 2.1 Move ALL Inline Styles to CSS Classes
+### [x] 2.1 Move ALL Inline Styles to CSS Classes
 
 Every component currently uses inline `style={{...}}` objects. This is the single biggest indicator of "vibe coded" to a senior engineer. 
 
@@ -318,7 +318,7 @@ Pulsing dot component for live status:
 
 Execute in this order. Each phase builds on the previous one.
 
-1. **CSS Refactor** (Phase 2.1) — Foundation for everything else
+1. [x] **CSS Refactor** (Phase 2.1) — Foundation for everything else 
 2. **Simulation Engines** (Phase 1.1-1.4) — The sim must be believable first
 3. **Stadium Map** (Phase 2.2) — The visual centerpiece
 4. **OverviewTab + MetricCards + Sparklines** (Phase 2.4, 2.6, 4.3) — Main dashboard polish
