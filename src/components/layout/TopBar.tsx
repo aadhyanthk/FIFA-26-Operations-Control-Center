@@ -9,7 +9,7 @@ export const TopBar: React.FC = () => {
 
     const checkStatus = async () => {
       try {
-        const res = await fetch('http://localhost:11434/api/version');
+        const res = await fetch('http://127.0.0.1:11434/api/version');
         if (isMounted) {
           if (res.ok) {
             setOllamaStatus('active');

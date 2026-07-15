@@ -10,25 +10,31 @@ import { ToolExecutor } from './ToolExecutor';
 export class Agent {
   async react(triggeringEvents: StadiumEvent[]): Promise<ExecutionPlan | null> {
     try {
+      console.log('Agent React: Starting OODA loop for events:', triggeringEvents);
       // 1. OBSERVE
       const snapshot = useStadiumStore.getState();
       
       // 2. ORIENT
       const prompt = PromptBuilder.buildContext(snapshot, triggeringEvents);
+      console.log('Agent React: Built prompt context.');
       
       // 3. DECIDE
       const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(TOOL_DEFINITIONS, null, 2)}`;
       
+      console.log('Agent React: Calling Ollama...');
       const response = await OllamaClient.chat([
         { role: 'system', content: systemPromptWithTools },
         { role: 'user', content: prompt }
       ]);
+      console.log('Agent React: Received response from Ollama.', response);
       
       // 4. BUILD PLAN
       const plan = this.parsePlan(response, triggeringEvents);
+      console.log('Agent React: Parsed plan:', plan);
       
       // 5. PRESENT
       useAgentStore.getState().addPlan(plan);
+      console.log('Agent React: Plan added to store.');
       
       return plan;
     } catch (e) {
