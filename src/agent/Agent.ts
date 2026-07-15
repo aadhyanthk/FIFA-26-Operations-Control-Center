@@ -19,7 +19,7 @@ export class Agent {
       console.log('Agent React: Built prompt context.');
       
       // 3. DECIDE
-      const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(TOOL_DEFINITIONS, null, 2)}`;
+      const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(TOOL_DEFINITIONS)}`;
       
       console.log('Agent React: Calling Ollama...');
       const response = await OllamaClient.chat([

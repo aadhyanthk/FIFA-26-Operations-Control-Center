@@ -14,6 +14,7 @@ export class OllamaClient {
         model: this.MODEL,
         messages,
         stream: true,
+        format: 'json',
         options: {
           temperature: 0.1
         }
@@ -49,7 +50,7 @@ export class OllamaClient {
               const parsed = JSON.parse(line);
               if (parsed.message?.content) {
                 fullContent += parsed.message.content;
-                // Optional: console.log(parsed.message.content) if you want to see every word
+                console.log('Stream chunk:', parsed.message.content); // Enabled so we can see it working!
               }
             } catch (e) {
               // ignore partial lines
