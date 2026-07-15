@@ -17,10 +17,12 @@ export class Agent {
       const prompt = PromptBuilder.buildContext(snapshot, triggeringEvents);
       
       // 3. DECIDE
+      const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(TOOL_DEFINITIONS, null, 2)}`;
+      
       const response = await OllamaClient.chat([
-        { role: 'system', content: PromptBuilder.SYSTEM_PROMPT },
+        { role: 'system', content: systemPromptWithTools },
         { role: 'user', content: prompt }
-      ], TOOL_DEFINITIONS);
+      ]);
       
       // 4. BUILD PLAN
       const plan = this.parsePlan(response, triggeringEvents);

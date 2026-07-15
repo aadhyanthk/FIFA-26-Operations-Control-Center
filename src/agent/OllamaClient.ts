@@ -8,7 +8,7 @@ export class OllamaClient {
   private static readonly ENDPOINT = 'http://localhost:11434/api/chat';
   private static readonly MODEL = 'phi3:mini';
 
-  static async chat(messages: ChatMessage[], tools: any[]): Promise<any> {
+  static async chat(messages: ChatMessage[]): Promise<any> {
     try {
       const response = await fetch(this.ENDPOINT, {
         method: 'POST',
@@ -16,7 +16,6 @@ export class OllamaClient {
         body: JSON.stringify({
           model: this.MODEL,
           messages,
-          tools,
           stream: false,
           options: {
             temperature: 0.1
