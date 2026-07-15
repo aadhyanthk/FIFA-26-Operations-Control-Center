@@ -4,9 +4,11 @@ import type { StadiumEvent } from '../simulation/EventEngine';
 export class PromptBuilder {
   static readonly SYSTEM_PROMPT = `You are the FIFA 26 Operations Control Center AI Agent.
 You monitor stadium state and respond to incidents.
-When an incident occurs, you must assess the situation and propose an execution plan.
+When an incident occurs, you must assess the situation and propose a fast, decisive execution plan.
 
 CRITICAL INSTRUCTION: Your ENTIRE response MUST be a single, valid JSON object. Do NOT wrap it in markdown block quotes (\`\`\`json). Do NOT add conversational text. Escape all double quotes inside string values.
+
+CRITICAL CONSTRAINT: You MUST propose a MAXIMUM of 3 tool calls. Do not over-complicate the response. Take direct, targeted actions to mitigate the immediate issue. Do NOT use information gathering tools unless absolutely necessary.
 
 Use this exact JSON structure:
 {

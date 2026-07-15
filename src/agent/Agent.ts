@@ -19,7 +19,15 @@ export class Agent {
       console.log('Agent React: Built prompt context.');
       
       // 3. DECIDE
-      const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(TOOL_DEFINITIONS)}`;
+      // Only give the agent action-oriented tools during incident reaction to prevent hallucinating 20 research steps
+      const actionTools = TOOL_DEFINITIONS.filter(t => 
+        ['open_gate', 'close_gate', 'adjust_gate_lanes', 'reroute_gate', 
+         'dispatch_security', 'dispatch_medical', 'dispatch_cleaning', 
+         'send_announcement', 'update_signage', 'create_maintenance_ticket', 
+         'reserve_emergency_route'].includes(t.function.name)
+      );
+
+      const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(actionTools)}`;
       
       console.log('Agent React: Calling Ollama...');
       const response = await OllamaClient.chat([
@@ -79,7 +87,7 @@ export class Agent {
       }
     } else if (parsedContent.tool_calls && Array.isArray(parsedContent.tool_calls)) {
       // Fallback to JSON tool_calls
-      for (const call of parsedContent.tool_calls) {
+      parsedContent.tool_calls.slice(0, 3).forEach((call: any) => {
         actions.push({
           id: crypto.randomUUID(),
           tool: call.name,
@@ -87,7 +95,7 @@ export class Agent {
           description: `Execute ${call.name}`,
           status: 'pending' as const
         });
-      }
+      });
     }
 
     return {
