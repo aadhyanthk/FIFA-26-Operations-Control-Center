@@ -18,6 +18,32 @@ export class EventEngine {
   tick(state: StadiumState): Partial<StadiumState> {
     const newIncidents: StadiumEvent[] = [];
 
+    // Predictive Gate Overcrowding
+    Object.values(state.gates).forEach(gate => {
+      // Calculate inbound fans in the next 10 mins
+      const imminentInbound = (gate.inboundTransits || []).reduce((acc, t) => acc + (t.timeRemaining < 600 ? t.amount : 0), 0);
+      const predictedQueue = gate.queueLength + imminentInbound;
+      const gateThroughputPerSec = (gate.activeLanes * 500) / 3600;
+      const predictedWaitTime = (predictedQueue / Math.max(1, gateThroughputPerSec)) / 60; // in mins
+      
+      if (predictedWaitTime > 30 && gate.averageWaitTime < 20) { // Only predict if not currently failing
+        const exists = state.incidents.find(i => i.location === `Gate ${gate.id}` && i.title.includes('Predicted') && i.status !== 'resolved');
+        if (!exists) {
+           newIncidents.push({
+            id: `ev-pred-gate-${gate.id}-${state.simTime}`,
+            timestamp: state.simTime,
+            type: 'crowd',
+            severity: 'warning',
+            title: `Predicted Overcrowding at Gate ${gate.id}`,
+            description: `Incoming transit surges will cause wait times to exceed 30 mins shortly. Predicted queue: ${predictedQueue} fans.`,
+            location: `Gate ${gate.id}`,
+            relatedEvents: [],
+            status: 'new'
+          });
+        }
+      }
+    });
+
     // Check Gates
     Object.values(state.gates).forEach(gate => {
       if (gate.averageWaitTime > 20) {

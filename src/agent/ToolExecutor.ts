@@ -1,8 +1,24 @@
 import { useStadiumStore } from '../store/stadiumStore';
+import { schemas, ToolName } from './schemas';
 
 export class ToolExecutor {
-  static async execute(toolName: string, params: Record<string, unknown>): Promise<string> {
+  static async execute(toolName: string, rawParams: Record<string, unknown>): Promise<string> {
     const store = useStadiumStore.getState();
+
+    // 1. Zod Validation (Security Layer)
+    if (!(toolName in schemas)) {
+      return `Validation Error: Tool ${toolName} does not exist in schema registry.`;
+    }
+
+    const schema = schemas[toolName as ToolName];
+    const parseResult = schema.safeParse(rawParams);
+    
+    if (!parseResult.success) {
+      console.error(`Tool validation failed for ${toolName}:`, parseResult.error);
+      return `Validation Error: Invalid parameters provided for ${toolName}. Details: ${parseResult.error.message}`;
+    }
+
+    const params = parseResult.data as Record<string, any>;
 
     switch (toolName) {
       case 'open_gate':

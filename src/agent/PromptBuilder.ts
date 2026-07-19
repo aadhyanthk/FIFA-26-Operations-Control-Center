@@ -28,6 +28,13 @@ Use this exact JSON structure:
 
 Never assume capabilities you don't have. Only use the tools provided.`;
 
+  static sanitizeInput(input: string): string {
+    if (!input) return '';
+    // Strip obvious injection vectors and limit length to prevent context flooding
+    let sanitized = input.replace(/(ignore all previous instructions|system prompt|you are now|system:|user:)/gi, '[REDACTED]');
+    return sanitized.substring(0, 500).trim();
+  }
+
   static buildContext(state: StadiumState, events: StadiumEvent[]): string {
     const activeEvents = events.filter(e => e.status !== 'resolved');
     
@@ -38,7 +45,7 @@ Current Stadium State:
 - Active Incidents: ${activeEvents.length}
 
 Recent Events:
-${activeEvents.map(e => `- [${e.severity.toUpperCase()}] ${e.title} at ${e.location}: ${e.description}`).join('\n')}
+${activeEvents.map(e => `- [${e.severity.toUpperCase()}] ${this.sanitizeInput(e.title)} at ${this.sanitizeInput(e.location)}: ${this.sanitizeInput(e.description)}`).join('\n')}
 
 Based on the above, decide the next operational actions.
 `;

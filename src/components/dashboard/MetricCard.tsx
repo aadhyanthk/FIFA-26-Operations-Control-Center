@@ -13,7 +13,7 @@ interface MetricCardProps {
   dataKey?: string;
 }
 
-export const MetricCard: React.FC<MetricCardProps> = ({ 
+export const MetricCard: React.FC<MetricCardProps> = React.memo(({ 
   title, value, format = 'number', trend, status = 'ok', progress, history, dataKey
 }) => {
   const statusColor = `var(--${status})`;
@@ -60,4 +60,4 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       )}
     </div>
   );
-};
+});

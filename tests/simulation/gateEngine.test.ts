@@ -49,4 +49,19 @@ describe('GateEngine', () => {
     // Wait time depends on pressure multiplier and queue remaining
     expect(newState.gates!['A'].averageWaitTime).toBeCloseTo(8, 0);
   });
+
+  it('should decrease throughput heavily under severe rain', () => {
+    mockState.weather!.rainIntensity = 0.9;
+    const newState = engine.tick(mockState as StadiumState, 1);
+    // Queue should process slower due to rain penalty
+    expect(newState.gates!['A'].queueLength).toBeGreaterThan(470);
+  });
+
+  it('should handle zero active lanes gracefully', () => {
+    mockState.gates!['A'].activeLanes = 0;
+    const newState = engine.tick(mockState as StadiumState, 1);
+    expect(newState.gates!['A'].queueLength).toBeGreaterThanOrEqual(475);
+    // Wait time should trend to infinity but is capped/managed safely in engine (or very high)
+    expect(newState.gates!['A'].averageWaitTime).toBeGreaterThan(50);
+  });
 });

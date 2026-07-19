@@ -20,7 +20,7 @@ const typeIcons: Record<string, string> = {
   default: '⚠️'
 };
 
-export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onClick }) => {
+export const IncidentCard: React.FC<IncidentCardProps> = React.memo(({ incident, onClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isCritical = incident.severity === 'critical' && incident.status !== 'resolved';
   const isResolved = incident.status === 'resolved';
@@ -103,4 +103,4 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onClick })
       )}
     </div>
   );
-};
+});

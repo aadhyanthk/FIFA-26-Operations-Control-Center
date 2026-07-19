@@ -31,14 +31,35 @@ export class Agent {
       const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(actionTools)}`;
       
       console.log('Agent React: Calling Ollama...');
-      const response = await OllamaClient.chat([
+      let response = await OllamaClient.chat([
         { role: 'system', content: systemPromptWithTools },
         { role: 'user', content: prompt }
       ]);
-      console.log('Agent React: Received response from Ollama.', response);
       
-      // 4. BUILD PLAN
-      const plan = this.parsePlan(response, triggeringEvents);
+      let retryCount = 0;
+      let plan: ExecutionPlan | null = null;
+      
+      while (retryCount < 2 && !plan) {
+        plan = this.parsePlan(response, triggeringEvents);
+        
+        // If parsed plan has no actions (meaning it probably hallucinated conversational text)
+        if (plan.actions.length === 0) {
+          console.warn(`Agent React: Retry ${retryCount + 1} - Empty actions or parse failure.`);
+          response = await OllamaClient.chat([
+            { role: 'system', content: systemPromptWithTools },
+            { role: 'user', content: prompt },
+            { role: 'assistant', content: response.content },
+            { role: 'user', content: 'You failed to output a valid JSON with tool_calls. Please try again and output ONLY valid JSON without markdown wrapping.' }
+          ]);
+          retryCount++;
+          plan = null;
+        }
+      }
+
+      if (!plan) {
+        throw new Error('Agent failed to generate a valid plan after retries.');
+      }
+
       console.log('Agent React: Parsed plan:', plan);
       
       // 5. PRESENT
