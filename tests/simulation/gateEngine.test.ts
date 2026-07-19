@@ -26,7 +26,8 @@ describe('GateEngine', () => {
           averageWaitTime: 0,
           scannerStatus: 'operational',
           scannerHealth: 100,
-          mode: 'inflow'
+          mode: 'inflow',
+          currentThroughput: 0
         }
       }
     };

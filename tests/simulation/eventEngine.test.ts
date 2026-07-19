@@ -13,7 +13,7 @@ describe('EventEngine', () => {
       incidents: [],
       weather: { temperature: 20, rainIntensity: 0, windSpeed: 5, humidity: 50, targetTemperature: 20, targetRainIntensity: 0 },
       gates: {
-        'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 800, activeLanes: 4, averageWaitTime: 25, scannerStatus: 'operational' }
+        'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 800, activeLanes: 4, averageWaitTime: 25, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow', currentThroughput: 0 }
       },
       zones: {
         '101': { id: '101', name: 'Section 101', maxCapacity: 1000, currentOccupancy: 950, density: 0.95 }
