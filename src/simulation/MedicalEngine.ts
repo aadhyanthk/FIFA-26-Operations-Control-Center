@@ -1,4 +1,3 @@
-import { stadiumLayout } from '../data/stadiumLayout';
 import type { StadiumState, TeamState } from '../store/stadiumStore';
 import type { StadiumEvent } from './EventEngine';
 

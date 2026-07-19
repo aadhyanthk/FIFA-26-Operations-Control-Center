@@ -6,7 +6,7 @@ import { PredictiveAlerts } from '../dashboard/PredictiveAlerts';
 import { useStadiumStore } from '../../store/stadiumStore';
 
 export const OverviewTab: React.FC = () => {
-  const { gates, zones, transport, historicalMetrics, incidents, teams } = useStadiumStore();
+  const { gates, zones, historicalMetrics, incidents, teams } = useStadiumStore();
 
   const totalCapacity = Object.values(zones).reduce((acc, z) => acc + z.maxCapacity, 0);
   const totalOccupancy = Object.values(zones).reduce((acc, z) => acc + z.currentOccupancy, 0);

@@ -9,15 +9,22 @@ import { TOOL_DEFINITIONS } from './tools';
 import { ToolExecutor } from './ToolExecutor';
 
 export class Agent {
+  /**
+   * Main OODA Loop entry point.
+   * Phase 1: OBSERVE - Reads current state.
+   * Phase 2: ORIENT - Builds context for the LLM.
+   * Phase 3: DECIDE - Calls local LLM for inference.
+   * Phase 4: ACT - Streams and parses the JSON execution plan.
+   * @param triggeringEvents The incidents that triggered this analysis.
+   * @returns An ExecutionPlan ready for human approval.
+   */
   async react(triggeringEvents: StadiumEvent[]): Promise<ExecutionPlan | null> {
     try {
-      console.log('Agent React: Starting OODA loop for events:', triggeringEvents);
       // 1. OBSERVE
       const snapshot = useStadiumStore.getState();
       
       // 2. ORIENT
       const prompt = PromptBuilder.buildContext(snapshot, triggeringEvents);
-      console.log('Agent React: Built prompt context.');
       
       // 3. DECIDE
       // Only give the agent action-oriented tools during incident reaction to prevent hallucinating 20 research steps
@@ -69,7 +76,6 @@ export class Agent {
         }
       };
 
-      console.log('Agent React: Calling Ollama...');
       let response = await OllamaClient.chat([
         { role: 'system', content: systemPromptWithTools },
         { role: 'user', content: prompt }
@@ -83,7 +89,6 @@ export class Agent {
         
         // If parsed plan has no actions (meaning it probably hallucinated conversational text)
         if (plan.actions.length === 0) {
-          console.warn(`Agent React: Retry ${retryCount + 1} - Empty actions or parse failure.`);
           response = await OllamaClient.chat([
             { role: 'system', content: systemPromptWithTools },
             { role: 'user', content: prompt },
@@ -98,17 +103,21 @@ export class Agent {
       if (!plan) {
         throw new Error('Agent failed to generate a valid plan after retries.');
       }
-
-      console.log('Agent React: Parsed plan:', plan);
       
       // 5. PRESENT
       plan.id = placeholderId; // keep the same ID for the UI
       useAgentStore.getState().updatePlan(placeholderId, plan);
-      console.log('Agent React: Final plan updated in store.');
       
       return plan;
     } catch (e) {
-      console.error('Agent failed to react:', e);
+      if (e instanceof Error) {
+        useAgentStore.getState().addMessage({
+          id: crypto.randomUUID(),
+          role: 'system',
+          content: `Agent reaction failed: ${e.message}`,
+          timestamp: Date.now()
+        });
+      }
       return null;
     }
   }
@@ -188,7 +197,7 @@ export class Agent {
       try {
         await ToolExecutor.execute(action.tool, action.params);
         store.setActionStatus(action.id, 'done');
-      } catch (e) {
+      } catch {
         store.setActionStatus(action.id, 'failed');
       }
       

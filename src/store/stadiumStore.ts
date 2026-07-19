@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import type { StadiumEvent } from '../simulation/EventEngine';
-import { stadiumLayout } from '../data/stadiumLayout';
 
 // Basic state structures
 export interface WeatherState {

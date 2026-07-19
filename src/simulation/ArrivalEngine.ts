@@ -1,7 +1,7 @@
 import type { StadiumState } from '../store/stadiumStore';
 
 export class ArrivalEngine {
-  tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
+  tick(state: StadiumState, _deltaTime: number): Partial<StadiumState> {
     if (state.transport.incomingPassengers <= 0) {
       return {};
     }

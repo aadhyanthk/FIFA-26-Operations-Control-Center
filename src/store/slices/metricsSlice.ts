@@ -20,7 +20,7 @@ export interface MetricsSlice {
   };
 }
 
-export const createMetricsSlice: StateCreator<StadiumState, [], [], MetricsSlice> = (set) => ({
+export const createMetricsSlice: StateCreator<StadiumState, [], [], MetricsSlice> = () => ({
   historicalMetrics: {
     occupancyTrend: 0,
     queueTrend: 0,

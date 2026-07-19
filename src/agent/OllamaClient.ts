@@ -30,8 +30,6 @@ export class OllamaClient {
         }
       };
       
-      console.log('Sending request to Ollama with payload:', payload);
-      
       const response = await fetch(this.ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +40,6 @@ export class OllamaClient {
         throw new Error(`Ollama API error: ${response.statusText}`);
       }
 
-      console.log('Ollama connection established. Receiving stream...');
       const reader = response.body?.getReader();
       const decoder = new TextDecoder('utf-8');
       let fullContent = '';
@@ -62,14 +59,13 @@ export class OllamaClient {
                 fullContent += parsed.message.content;
                 if (onChunk) onChunk(fullContent);
               }
-            } catch (e) {
-              // ignore partial lines
+            } catch {
+              // Intentionally ignore partial line parses from the stream
             }
           }
         }
       }
 
-      console.log('Stream finished. Full content length:', fullContent.length);
       return { role: 'assistant', content: fullContent };
     } catch (error) {
       console.error('Failed to communicate with Ollama:', error);

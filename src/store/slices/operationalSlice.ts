@@ -10,7 +10,7 @@ export interface OperationalSlice {
   foodCourts: Record<string, FoodCourtState>;
 }
 
-export const createOperationalSlice: StateCreator<StadiumState, [], [], OperationalSlice> = (set) => ({
+export const createOperationalSlice: StateCreator<StadiumState, [], [], OperationalSlice> = () => ({
   transport: {
     trainDelays: 0,
     busDelays: 0,

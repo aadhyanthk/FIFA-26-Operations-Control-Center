@@ -17,7 +17,7 @@ export const TopBar: React.FC = () => {
             setOllamaStatus('error');
           }
         }
-      } catch (err) {
+      } catch {
         if (isMounted) {
           setOllamaStatus('error');
         }

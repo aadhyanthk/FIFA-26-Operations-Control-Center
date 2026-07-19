@@ -8,8 +8,6 @@ export const CommandBar: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
       if (!aiPanelOpen) setAiPanelOpen(true);
-      // In a real app, this would dispatch the query to the agent
-      console.log('Dispatching query to Agent:', query);
       setQuery('');
     }
   };

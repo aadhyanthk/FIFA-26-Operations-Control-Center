@@ -1,9 +1,9 @@
 import React from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
-interface SparklineProps {
-  data: any[];
-  dataKey: string;
+interface SparklineProps<T = Record<string, unknown>> {
+  data: T[];
+  dataKey: Extract<keyof T, string>;
   color?: string;
   width?: string | number;
   height?: string | number;

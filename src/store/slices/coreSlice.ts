@@ -1,6 +1,10 @@
 import type { StateCreator } from 'zustand';
 import type { StadiumState } from '../stadiumStore';
 
+/**
+ * Core simulation slice. Handles the global simulation clock, 
+ * execution speed multipliers, and pause/play states.
+ */
 export interface CoreSlice {
   simTime: number;
   tickCount: number;
