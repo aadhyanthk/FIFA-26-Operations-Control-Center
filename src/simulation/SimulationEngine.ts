@@ -10,19 +10,29 @@ import { CleaningEngine } from './CleaningEngine';
 import { FoodEngine } from './FoodEngine';
 import { EventEngine } from './EventEngine';
 
+export interface IEngine {
+  tick(state: StadiumState, deltaTime: number): Partial<StadiumState>;
+}
+
 export class SimulationEngine {
-  private engines = [
-    new WeatherEngine(),
-    new TransportEngine(),
-    new ArrivalEngine(),
-    new GateEngine(),
-    new CrowdEngine(),
-    new MedicalEngine(),
-    new SecurityEngine(),
-    new CleaningEngine(),
-    new FoodEngine(),
-    new EventEngine(),
-  ];
+  private engines: IEngine[];
+
+  constructor(
+    engines: IEngine[] = [
+      new WeatherEngine(),
+      new TransportEngine(),
+      new ArrivalEngine(),
+      new GateEngine(),
+      new CrowdEngine(),
+      new MedicalEngine(),
+      new SecurityEngine(),
+      new CleaningEngine(),
+      new FoodEngine(),
+      new EventEngine(),
+    ]
+  ) {
+    this.engines = engines;
+  }
 
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const finalState = this.engines.reduce((acc, engine) => {

@@ -1,11 +1,12 @@
 import React from 'react';
 import { useStadiumStore } from '../../store/stadiumStore';
+import { useShallow } from 'zustand/react/shallow';
 import { MetricCard } from '../dashboard/MetricCard';
 import { Sparkline } from '../common/Sparkline';
 
 export const GatesTab: React.FC = () => {
-  const gates = useStadiumStore(state => state.gates);
-  const historicalMetrics = useStadiumStore(state => state.historicalMetrics);
+  const gates = useStadiumStore(useShallow(state => state.gates));
+  const historicalMetrics = useStadiumStore(useShallow(state => state.historicalMetrics));
 
   const gatesArray = Object.values(gates);
   const openGates = gatesArray.filter(g => g.isOpen).length;

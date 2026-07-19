@@ -57,6 +57,15 @@ export const TopBar: React.FC = () => {
           ></div>
           {statusText}
         </div>
+        <button 
+          className="btn btn--sm btn--primary"
+          onClick={async () => {
+            const { ExportService } = await import('../../utils/ExportService');
+            ExportService.exportShiftHandover();
+          }}
+        >
+          Export Report
+        </button>
         <div className="mono text-sm text-secondary">
           Speed: 2x
         </div>

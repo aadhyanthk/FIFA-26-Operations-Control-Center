@@ -33,7 +33,7 @@ export class EventEngine {
             id: `ev-pred-gate-${gate.id}-${state.simTime}`,
             timestamp: state.simTime,
             type: 'crowd',
-            severity: 'warning',
+            severity: 'medium',
             title: `Predicted Overcrowding at Gate ${gate.id}`,
             description: `Incoming transit surges will cause wait times to exceed 30 mins shortly. Predicted queue: ${predictedQueue} fans.`,
             location: `Gate ${gate.id}`,

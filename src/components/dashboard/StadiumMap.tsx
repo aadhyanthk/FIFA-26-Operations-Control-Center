@@ -99,71 +99,128 @@ export const StadiumMap: React.FC = () => {
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseleave', () => setTooltip(null));
 
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = canvas.width;
+    bgCanvas.height = canvas.height;
+    const bgCtx = bgCanvas.getContext('2d');
+    let lastRenderedTick = -1;
+
     const render = () => {
       const state = useStadiumStore.getState();
       const width = canvas.width;
       const height = canvas.height;
 
-      // Clear
-      ctx.clearRect(0, 0, width, height);
+      // 1. Update Background Cache only when simulation ticks (not every 60fps frame)
+      if (bgCtx && state.tickCount !== lastRenderedTick) {
+        bgCtx.clearRect(0, 0, width, height);
 
-      // Draw Stadium Outer Boundary
-      ctx.fillStyle = '#0f172a'; // very dark
-      ctx.beginPath();
-      ctx.ellipse(width/2, height/2, width*0.48, height*0.56, 0, 0, Math.PI * 2);
-      ctx.fill();
+        // Draw Stadium Outer Boundary
+        bgCtx.fillStyle = '#0f172a';
+        bgCtx.beginPath();
+        bgCtx.ellipse(width/2, height/2, width*0.48, height*0.56, 0, 0, Math.PI * 2);
+        bgCtx.fill();
 
-      // Draw Pitch
-      ctx.fillStyle = '#14532d'; // darker pitch green
-      ctx.beginPath();
-      const pitchW = width * 0.20;
-      const pitchH = height * 0.35;
-      ctx.rect(width/2 - pitchW/2, height/2 - pitchH/2, pitchW, pitchH);
-      ctx.fill();
-      
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Pitch markings
-      ctx.beginPath();
-      ctx.moveTo(width/2 - pitchW/2, height/2);
-      ctx.lineTo(width/2 + pitchW/2, height/2);
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.arc(width/2, height/2, pitchW * 0.3, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Draw Zones (Polygons + Heatmap)
-      stadiumLayout.zones.forEach(zone => {
-        if (!zone.path || zone.path.length === 0) return;
+        // Draw Pitch
+        bgCtx.fillStyle = '#14532d';
+        bgCtx.beginPath();
+        const pitchW = width * 0.20;
+        const pitchH = height * 0.35;
+        bgCtx.rect(width/2 - pitchW/2, height/2 - pitchH/2, pitchW, pitchH);
+        bgCtx.fill();
         
-        const zoneState = state.zones[zone.id];
-        const density = zoneState?.density || 0;
+        bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        bgCtx.lineWidth = 2;
+        bgCtx.stroke();
         
-        // HSL heatmap based on density
-        let hue = 220; // Default blue
-        let alpha = 0.2;
-        if (density > 0) {
-           hue = 120 - (density * 120); // 120 (Green) to 0 (Red)
-           alpha = 0.3 + (density * 0.5); // more opaque when full
-        }
+        // Pitch markings
+        bgCtx.beginPath();
+        bgCtx.moveTo(width/2 - pitchW/2, height/2);
+        bgCtx.lineTo(width/2 + pitchW/2, height/2);
+        bgCtx.stroke();
         
-        ctx.fillStyle = `hsla(${Math.max(0, hue)}, 80%, 50%, ${alpha})`;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.lineWidth = 1;
+        bgCtx.beginPath();
+        bgCtx.arc(width/2, height/2, pitchW * 0.3, 0, Math.PI * 2);
+        bgCtx.stroke();
 
-        ctx.beginPath();
-        zone.path.forEach((p, i) => {
-          if (i === 0) ctx.moveTo(p.x * width, p.y * height);
-          else ctx.lineTo(p.x * width, p.y * height);
+        // Draw Zones (Polygons + Heatmap)
+        stadiumLayout.zones.forEach(zone => {
+          if (!zone.path || zone.path.length === 0) return;
+          
+          const zoneState = state.zones[zone.id];
+          const density = zoneState?.density || 0;
+          
+          let hue = 220; 
+          let alpha = 0.2;
+          if (density > 0) {
+             hue = 120 - (density * 120); 
+             alpha = 0.3 + (density * 0.5); 
+          }
+          
+          bgCtx.fillStyle = `hsla(${Math.max(0, hue)}, 80%, 50%, ${alpha})`;
+          bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+          bgCtx.lineWidth = 1;
+
+          bgCtx.beginPath();
+          zone.path.forEach((p, i) => {
+            if (i === 0) bgCtx.moveTo(p.x * width, p.y * height);
+            else bgCtx.lineTo(p.x * width, p.y * height);
+          });
+          bgCtx.closePath();
+          bgCtx.fill();
+          bgCtx.stroke();
         });
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-      });
 
+        // Draw Gates
+        stadiumLayout.gates.forEach(gate => {
+          const stateGate = state.gates[gate.id];
+          const cx = gate.location.x * width;
+          const cy = gate.location.y * height;
+          
+          bgCtx.fillStyle = '#1e293b';
+          bgCtx.strokeStyle = stateGate?.isOpen ? '#22c55e' : '#ef4444';
+          bgCtx.lineWidth = 3;
+          
+          bgCtx.beginPath();
+          bgCtx.arc(cx, cy, 14, 0, Math.PI * 2);
+          bgCtx.fill();
+          bgCtx.stroke();
+          
+          bgCtx.fillStyle = '#f1f5f9';
+          bgCtx.font = 'bold 13px Inter';
+          bgCtx.textAlign = 'center';
+          bgCtx.fillText(gate.id, cx, cy + 4);
+
+          if (stateGate?.isOpen && stateGate.queueLength > 0) {
+            const dir = stateGate.mode === 'inflow' ? -1 : 1;
+            const dx = cx - width/2;
+            const dy = cy - height/2;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const nx = dx/dist;
+            const ny = dy/dist;
+
+            bgCtx.fillStyle = '#3b82f6';
+            bgCtx.beginPath();
+            const tCx = cx + nx * 22 * dir;
+            const tCy = cy + ny * 22 * dir;
+            
+            bgCtx.moveTo(tCx + nx * 6, tCy + ny * 6);
+            bgCtx.lineTo(tCx - nx * 6 - ny * 6, tCy - ny * 6 + nx * 6);
+            bgCtx.lineTo(tCx - nx * 6 + ny * 6, tCy - ny * 6 - nx * 6);
+            bgCtx.closePath();
+            bgCtx.fill();
+          }
+        });
+
+        lastRenderedTick = state.tickCount;
+      }
+
+      // 2. Clear main canvas and draw cached background
+      ctx.clearRect(0, 0, width, height);
+      if (bgCtx) {
+        ctx.drawImage(bgCanvas, 0, 0);
+      }
+
+      // 3. Draw high-frequency entities (particles and teams) directly on main canvas
       // Spawn particles based on density
       Object.values(state.zones).forEach(z => {
         if (z.density > 0.1 && Math.random() < z.density * 0.15) {
@@ -195,48 +252,6 @@ export const StadiumMap: React.FC = () => {
         ctx.fill();
       });
 
-      // Draw Gates
-      stadiumLayout.gates.forEach(gate => {
-        const stateGate = state.gates[gate.id];
-        const cx = gate.location.x * width;
-        const cy = gate.location.y * height;
-        
-        ctx.fillStyle = '#1e293b';
-        ctx.strokeStyle = stateGate?.isOpen ? '#22c55e' : '#ef4444';
-        ctx.lineWidth = 3;
-        
-        ctx.beginPath();
-        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        
-        ctx.fillStyle = '#f1f5f9';
-        ctx.font = 'bold 13px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(gate.id, cx, cy + 4);
-
-        // Directional arrow
-        if (stateGate?.isOpen && stateGate.queueLength > 0) {
-          const dir = stateGate.mode === 'inflow' ? -1 : 1;
-          const dx = cx - width/2;
-          const dy = cy - height/2;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          const nx = dx/dist;
-          const ny = dy/dist;
-
-          ctx.fillStyle = '#3b82f6';
-          ctx.beginPath();
-          const tCx = cx + nx * 22 * dir;
-          const tCy = cy + ny * 22 * dir;
-          
-          ctx.moveTo(tCx + nx * 6, tCy + ny * 6);
-          ctx.lineTo(tCx - nx * 6 - ny * 6, tCy - ny * 6 + nx * 6);
-          ctx.lineTo(tCx - nx * 6 + ny * 6, tCy - ny * 6 - nx * 6);
-          ctx.closePath();
-          ctx.fill();
-        }
-      });
-
       // Draw Teams
       const teamIcons: Record<string, string> = {
         'security': '🛡️',
@@ -265,9 +280,7 @@ export const StadiumMap: React.FC = () => {
            const offsetCount = drawnTeams.get(locKey) || 0;
            drawnTeams.set(locKey, offsetCount + 1);
            
-           // Apply expanding offset if multiple teams are at same location
            const cx = locCoords.x * width + (offsetCount * 12) - (offsetCount > 0 ? 6 : 0);
-           // Offset Y so it doesn't block gate text which is at cy + 4
            const cy = locCoords.y * height + (offsetCount * 5) + (isGate ? 18 : 0);
            
            ctx.font = '16px Arial';
@@ -311,12 +324,39 @@ export const StadiumMap: React.FC = () => {
         </div>
       </div>
 
+      {/* Screen Reader Only Table for Accessibility */}
+      <table className="sr-only" aria-live="polite">
+        <caption>Live Stadium Zone Occupancy and Density</caption>
+        <thead>
+          <tr>
+            <th scope="col">Zone</th>
+            <th scope="col">Occupancy</th>
+            <th scope="col">Capacity</th>
+            <th scope="col">Density</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stadiumLayout.zones.map(z => {
+            const zoneState = useStadiumStore.getState().zones[z.id];
+            return (
+              <tr key={z.id}>
+                <td>{z.name}</td>
+                <td>{zoneState?.currentOccupancy || 0}</td>
+                <td>{z.maxCapacity}</td>
+                <td>{Math.round((zoneState?.density || 0) * 100)}%</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
       <canvas 
         ref={canvasRef} 
         width={800} 
         height={600}
         className="w-full h-full"
         style={{ objectFit: 'contain', cursor: tooltip ? 'crosshair' : 'default' }}
+        aria-hidden="true"
       />
 
       {tooltip && (

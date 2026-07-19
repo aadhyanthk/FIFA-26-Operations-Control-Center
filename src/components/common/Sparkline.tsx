@@ -2,7 +2,7 @@ import React from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 interface SparklineProps {
-  data: Record<string, number | string>[];
+  data: any[];
   dataKey: string;
   color?: string;
   width?: string | number;

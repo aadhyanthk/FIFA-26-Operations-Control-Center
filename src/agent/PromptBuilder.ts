@@ -30,8 +30,28 @@ Never assume capabilities you don't have. Only use the tools provided.`;
 
   static sanitizeInput(input: string): string {
     if (!input) return '';
-    // Strip obvious injection vectors and limit length to prevent context flooding
-    let sanitized = input.replace(/(ignore all previous instructions|system prompt|you are now|system:|user:)/gi, '[REDACTED]');
+    
+    // 1. Strip structural control characters that could break JSON or prompt framing
+    let sanitized = input.replace(/[<>{}[\\]`~|\\^]/g, '');
+    
+    // 2. Heuristic check for Base64 or obfuscated long string entropy (words > 25 chars)
+    sanitized = sanitized.split(/\\s+/).map(word => word.length > 25 ? '[OBFUSCATED]' : word).join(' ');
+
+    // 3. Advanced stripping of prompt injection keywords (including spacing variations)
+    const injectionPatterns = [
+      /ignore\\s+all\\s+previous/gi,
+      /system\\s*prompt/gi,
+      /you\\s+are\\s+now/gi,
+      /(?:system|user|assistant):/gi,
+      /disregard/gi,
+      /bypass/gi
+    ];
+    
+    injectionPatterns.forEach(pattern => {
+      sanitized = sanitized.replace(pattern, '[REDACTED]');
+    });
+
+    // 4. Limit length to prevent context window flooding
     return sanitized.substring(0, 500).trim();
   }
 

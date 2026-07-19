@@ -1,9 +1,10 @@
 import React from 'react';
 import { useStadiumStore } from '../../store/stadiumStore';
+import { useShallow } from 'zustand/react/shallow';
 import { MetricCard } from '../dashboard/MetricCard';
 
 export const FoodTab: React.FC = () => {
-  const { foodCourts } = useStadiumStore();
+  const foodCourts = useStadiumStore(useShallow(state => state.foodCourts));
   const courts = Object.values(foodCourts || {});
 
   const totalRevenue = courts.reduce((sum, fc) => sum + fc.revenue, 0);

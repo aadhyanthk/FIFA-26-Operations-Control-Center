@@ -1,5 +1,6 @@
 import { useStadiumStore } from '../store/stadiumStore';
-import { schemas, ToolName } from './schemas';
+import type { ToolName } from './schemas';
+import { schemas } from './schemas';
 
 export class ToolExecutor {
   static async execute(toolName: string, rawParams: Record<string, unknown>): Promise<string> {

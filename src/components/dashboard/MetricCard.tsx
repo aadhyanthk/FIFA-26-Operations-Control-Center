@@ -9,7 +9,7 @@ interface MetricCardProps {
   trend?: number; // percentage change
   status?: 'ok' | 'warning' | 'critical';
   progress?: number; // 0 to 100
-  history?: Record<string, number | string>[];
+  history?: any[];
   dataKey?: string;
 }
 

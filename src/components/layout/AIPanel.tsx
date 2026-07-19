@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore
 import FocusTrap from 'focus-trap-react';
 import { useUIStore } from '../../store/uiStore';
 import { AgentHistory } from '../agent/AgentHistory';
