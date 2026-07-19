@@ -1,63 +1,115 @@
 import type { StadiumState } from '../store/stadiumStore';
+import { OCC_CONSTANTS } from '../utils/operationsConstants';
 
+const { WEATHER } = OCC_CONSTANTS;
+
+/**
+ * Simulates real-world weather dynamics at MetLife Stadium on match day.
+ *
+ * ## Model
+ * Weather values (`temperature`, `rainIntensity`, `windSpeed`, `humidity`)
+ * are smoothly interpolated toward independently evolving *target* values.
+ * Targets evolve through:
+ *  - Spontaneous weather events (squalls, heatwaves) with low-probability triggers
+ *  - Natural drift (small random walk each tick)
+ *  - Automatic subsidence of extreme events over time
+ *
+ * This produces realistic, gradual weather changes rather than instant jumps.
+ *
+ * ## Causal Outputs
+ * Weather state is read by `TransportEngine` (rain delays), `GateEngine`
+ * (throughput penalties), `MedicalEngine` (heat/rain incident rates), and
+ * `FoodEngine` (drink demand spikes).
+ *
+ * @param state - Full stadium state snapshot
+ * @param deltaTime - Seconds elapsed since last tick
+ * @returns Partial state containing updated `weather`
+ */
 export class WeatherEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const weather = { ...state.weather };
-    
-    // Smooth interpolation towards targets
-    // Temperature: moves 0.1 degree per second max
+
+    // Smooth interpolation toward temperature target
     if (weather.temperature < weather.targetTemperature) {
-      weather.temperature = Math.min(weather.targetTemperature, weather.temperature + 0.1 * deltaTime);
+      weather.temperature = Math.min(
+        weather.targetTemperature,
+        weather.temperature + WEATHER.TEMP_INTERPOLATION_RATE * deltaTime
+      );
     } else if (weather.temperature > weather.targetTemperature) {
-      weather.temperature = Math.max(weather.targetTemperature, weather.temperature - 0.1 * deltaTime);
+      weather.temperature = Math.max(
+        weather.targetTemperature,
+        weather.temperature - WEATHER.TEMP_INTERPOLATION_RATE * deltaTime
+      );
     }
 
-    // Rain: moves 0.005 per second max (takes ~160 seconds to go from 0 to 0.8)
+    // Smooth interpolation toward rain intensity target
     if (weather.rainIntensity < weather.targetRainIntensity) {
-      weather.rainIntensity = Math.min(weather.targetRainIntensity, weather.rainIntensity + 0.005 * deltaTime);
+      weather.rainIntensity = Math.min(
+        weather.targetRainIntensity,
+        weather.rainIntensity + WEATHER.RAIN_INTERPOLATION_RATE * deltaTime
+      );
     } else if (weather.rainIntensity > weather.targetRainIntensity) {
-      weather.rainIntensity = Math.max(weather.targetRainIntensity, weather.rainIntensity - 0.005 * deltaTime);
+      weather.rainIntensity = Math.max(
+        weather.targetRainIntensity,
+        weather.rainIntensity - WEATHER.RAIN_INTERPOLATION_RATE * deltaTime
+      );
     }
 
-    // Slowly change wind speed (random walk)
-    if (Math.random() < 0.05) {
+    // Wind speed random walk
+    if (Math.random() < WEATHER.WIND_RANDOM_WALK_CHANCE) {
       weather.windSpeed += (Math.random() - 0.5) * 2;
-      weather.windSpeed = Math.max(0, Math.min(60, weather.windSpeed));
-    }
-    
-    // Slowly change humidity (random walk)
-    if (Math.random() < 0.05) {
-      weather.humidity += (Math.random() - 0.5) * 1.5;
-      weather.humidity = Math.max(30, Math.min(95, weather.humidity));
+      weather.windSpeed = Math.max(
+        0,
+        Math.min(WEATHER.MAX_WIND_SPEED, weather.windSpeed)
+      );
     }
 
-    // Trigger Weather Events (Random chances)
-    // Only trigger if we aren't already in a major event
-    if (weather.targetRainIntensity < 0.5 && weather.targetTemperature < 35) {
-      // 0.0005 chance per second (~3% per minute) to trigger a rain squall
-      if (Math.random() < 0.0005) {
-        weather.targetRainIntensity = 0.8; // Heavy rain
-        weather.windSpeed = Math.max(weather.windSpeed, 30); // Gusts
-      } 
-      // 0.0002 chance per second to trigger a heatwave
-      else if (Math.random() < 0.0002) {
-        weather.targetTemperature = 39; // Heat advisory levels
+    // Humidity random walk
+    if (Math.random() < WEATHER.HUMIDITY_RANDOM_WALK_CHANCE) {
+      weather.humidity += (Math.random() - 0.5) * 1.5;
+      weather.humidity = Math.max(
+        WEATHER.MIN_HUMIDITY,
+        Math.min(WEATHER.MAX_HUMIDITY, weather.humidity)
+      );
+    }
+
+    // Weather event trigger logic
+    const isQuiet =
+      weather.targetRainIntensity < OCC_CONSTANTS.THRESHOLDS.SEVERE_WEATHER_RAIN &&
+      weather.targetTemperature < OCC_CONSTANTS.THRESHOLDS.HEATWAVE_TEMP;
+
+    if (isQuiet) {
+      if (Math.random() < WEATHER.RAIN_SQUALL_CHANCE) {
+        // Spontaneous squall
+        weather.targetRainIntensity = WEATHER.SQUALL_RAIN_TARGET;
+        weather.windSpeed = Math.max(weather.windSpeed, WEATHER.SQUALL_MIN_WIND);
+      } else if (Math.random() < WEATHER.HEATWAVE_CHANCE) {
+        // Spontaneous heatwave
+        weather.targetTemperature = WEATHER.HEATWAVE_TEMP_TARGET;
       } else {
-        // Natural drift of targets
-        if (Math.random() < 0.01) {
-          weather.targetTemperature += (Math.random() - 0.5) * 1.0;
-          weather.targetTemperature = Math.max(18, Math.min(32, weather.targetTemperature));
+        // Natural drift
+        if (Math.random() < WEATHER.TEMP_DRIFT_CHANCE) {
+          weather.targetTemperature += (Math.random() - 0.5) * WEATHER.TEMP_DRIFT_RANGE;
+          weather.targetTemperature = Math.max(
+            WEATHER.TEMP_MIN,
+            Math.min(WEATHER.TEMP_MAX, weather.targetTemperature)
+          );
         }
-        if (Math.random() < 0.01 && weather.targetRainIntensity > 0) {
-          weather.targetRainIntensity -= 0.1;
-          weather.targetRainIntensity = Math.max(0, weather.targetRainIntensity);
+        if (
+          Math.random() < WEATHER.RAIN_CLEAR_CHANCE &&
+          weather.targetRainIntensity > 0
+        ) {
+          weather.targetRainIntensity = Math.max(
+            0,
+            weather.targetRainIntensity - WEATHER.RAIN_CLEAR_STEP
+          );
         }
       }
     } else {
-      // If we are in an event, there is a chance it subsides
-      if (Math.random() < 0.002) { // Event subsides over time
+      // Active weather event — chance it subsides
+      if (Math.random() < WEATHER.EVENT_SUBSIDE_CHANCE) {
         weather.targetRainIntensity = 0;
-        weather.targetTemperature = 25;
+        weather.targetTemperature = WEATHER.SUBSIDE_TEMP_TARGET;
       }
     }
 

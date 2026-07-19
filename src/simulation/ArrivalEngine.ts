@@ -1,5 +1,20 @@
 import type { StadiumState } from '../store/stadiumStore';
 
+/**
+ * Distributes fans from the transport layer into gate queues.
+ *
+ * ## Model
+ * `TransportEngine` accumulates `incomingPassengers` each tick based on
+ * transport schedules and delays. This engine consumes that value by
+ * distributing fans evenly across all open gates, then zeroes the counter.
+ *
+ * Distributing before `GateEngine` runs ensures the gate throughput
+ * simulation immediately accounts for the newly added queue pressure.
+ *
+ * @param state - Full stadium state snapshot
+ * @param _deltaTime - Unused; distribution is instantaneous
+ * @returns Partial state with updated `gates` and `transport.incomingPassengers` zeroed
+ */
 export class ArrivalEngine {
   tick(state: StadiumState, _deltaTime: number): Partial<StadiumState> {
     if (state.transport.incomingPassengers <= 0) {

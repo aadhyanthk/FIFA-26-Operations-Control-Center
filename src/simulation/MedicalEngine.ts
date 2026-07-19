@@ -1,35 +1,89 @@
 import type { StadiumState, TeamState } from '../store/stadiumStore';
 import type { StadiumEvent } from './EventEngine';
+import { resolveTeamIncidents } from './resolveTeamIncidents';
+import { OCC_CONSTANTS } from '../utils/operationsConstants';
 
+const { MEDICAL, TIME, THRESHOLDS } = OCC_CONSTANTS;
+
+/**
+ * Simulates medical incident generation and team dispatch resolution
+ * for the FIFA 26 stadium on match day.
+ *
+ * ## Responsibilities
+ * - Stochastically generates medical incidents (heat exhaustion, falls,
+ *   cardiac events, etc.) scaled to crowd density, weather, and match phase.
+ * - Drives the traveling → on-scene → resolved FSM for all medical teams
+ *   via the shared {@link resolveTeamIncidents} utility.
+ *
+ * ## Causal Inputs
+ * - `state.weather.temperature` — high temperatures raise incident probability
+ * - `state.weather.rainIntensity` — rain raises slip/fall incident probability
+ * - `state.zones` — high-density zones attract more incidents
+ * - `state.simTime` — halftime raises probability due to crowd movement
+ */
 export class MedicalEngine {
+  /** Incident type labels for random selection */
+  private static readonly INCIDENT_TYPES = [
+    'heat_exhaustion',
+    'fall',
+    'cardiac',
+    'allergic_reaction',
+    'intoxication',
+  ] as const;
+
   tick(state: StadiumState, _deltaTime: number): Partial<StadiumState> {
     const newIncidents: StadiumEvent[] = [...state.incidents];
     const newTeams: Record<string, TeamState> = { ...state.teams };
     let hasChanges = false;
 
-    // 1. Incident Generation
-    let incidentChance = 2 / 3600; // base ~2/hour
-    if (state.weather.temperature > 35) incidentChance *= 1.4;
-    if (state.weather.rainIntensity > 0.5) incidentChance *= 1.25;
-    if (state.simTime >= 2700 && state.simTime <= 3600) incidentChance *= 1.2; // Halftime rush
+    // 1. Stochastic Incident Generation
+    let medicalIncidentProbability = MEDICAL.BASE_INCIDENT_RATE;
 
-    const hasHighDensity = Object.values(state.zones).some(z => z.density > 0.8);
-    if (hasHighDensity) incidentChance *= 1.15;
+    if (state.weather.temperature > THRESHOLDS.HEATWAVE_TEMP) {
+      medicalIncidentProbability *= MEDICAL.HEAT_RATE_MULTIPLIER;
+    }
+    if (state.weather.rainIntensity > THRESHOLDS.SEVERE_WEATHER_RAIN) {
+      medicalIncidentProbability *= MEDICAL.RAIN_RATE_MULTIPLIER;
+    }
+    if (
+      state.simTime >= TIME.HALFTIME_START &&
+      state.simTime <= TIME.HALFTIME_END
+    ) {
+      medicalIncidentProbability *= MEDICAL.HALFTIME_RATE_MULTIPLIER;
+    }
 
-    if (Math.random() < incidentChance) {
-      const types = ['heat_exhaustion', 'fall', 'cardiac', 'allergic_reaction', 'intoxication'];
-      const type = types[Math.floor(Math.random() * types.length)];
-      const severity = type === 'cardiac' ? 'critical' : ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high';
-      
+    const hasHighDensity = Object.values(state.zones).some(
+      (z) => z.density > THRESHOLDS.WARNING_DENSITY
+    );
+    if (hasHighDensity) {
+      medicalIncidentProbability *= MEDICAL.HIGH_DENSITY_MULTIPLIER;
+    }
+
+    if (Math.random() < medicalIncidentProbability) {
+      const type =
+        MedicalEngine.INCIDENT_TYPES[
+          Math.floor(Math.random() * MedicalEngine.INCIDENT_TYPES.length)
+        ];
+      const severity =
+        type === 'cardiac'
+          ? 'critical'
+          : (['low', 'medium', 'high'] as const)[
+              Math.floor(Math.random() * 3)
+            ];
+
       const locations = [
-        ...Object.values(state.zones).map(z => z.name),
-        ...Object.values(state.gates).map(g => `Gate ${g.id}`)
+        ...Object.values(state.zones).map((z) => z.name),
+        ...Object.values(state.gates).map((g) => `Gate ${g.id}`),
       ];
-      
-      let selectedLocation = locations[Math.floor(Math.random() * locations.length)];
-      const denseZones = Object.values(state.zones).filter(z => z.density > 0.8);
+
+      let selectedLocation =
+        locations[Math.floor(Math.random() * locations.length)];
+      const denseZones = Object.values(state.zones).filter(
+        (z) => z.density > THRESHOLDS.WARNING_DENSITY
+      );
       if (denseZones.length > 0 && Math.random() < 0.5) {
-        selectedLocation = denseZones[Math.floor(Math.random() * denseZones.length)].name;
+        selectedLocation =
+          denseZones[Math.floor(Math.random() * denseZones.length)].name;
       }
 
       newIncidents.unshift({
@@ -41,54 +95,20 @@ export class MedicalEngine {
         description: `A ${severity} severity medical incident occurred.`,
         location: selectedLocation,
         relatedEvents: [],
-        status: 'new'
+        status: 'new',
       });
       hasChanges = true;
     }
 
-    // 2. Team Resolution
-    const activeMedicalIncidents = newIncidents.filter(i => i.type === 'medical' && i.status !== 'resolved');
-    
-    Object.values(newTeams).filter(t => t.department === 'medical').forEach(team => {
-      if (team.status === 'busy' && team.currentAssignment) {
-        const incident = activeMedicalIncidents.find(i => i.id === team.currentAssignment);
-        if (incident) {
-          if (team.arrivalTick && state.simTime < team.arrivalTick) {
-            // Still traveling
-          } else if (team.arrivalTick && state.simTime >= team.arrivalTick && !team.resolveTick) {
-            // Arrived
-            team.location = team.targetLocation || incident.location;
-            
-            let resolveTime = 120; // medium
-            if (incident.severity === 'low') resolveTime = 60;
-            if (incident.severity === 'high') resolveTime = 180;
-            if (incident.severity === 'critical') resolveTime = 300;
-
-            team.resolveTick = state.simTime + resolveTime;
-            incident.status = 'in_progress';
-            incident.assignedTeam = team.id;
-            hasChanges = true;
-          } else if (team.resolveTick && state.simTime >= team.resolveTick) {
-            // Resolved
-            incident.status = 'resolved';
-            team.status = 'idle';
-            team.currentAssignment = undefined;
-            team.arrivalTick = undefined;
-            team.resolveTick = undefined;
-            team.targetLocation = undefined;
-            hasChanges = true;
-          }
-        } else {
-          // Incident might have been resolved by other means
-          team.status = 'idle';
-          team.currentAssignment = undefined;
-          team.arrivalTick = undefined;
-          team.resolveTick = undefined;
-          team.targetLocation = undefined;
-          hasChanges = true;
-        }
-      }
-    });
+    // 2. Team Resolution FSM
+    const fsmChanged = resolveTeamIncidents(
+      newTeams,
+      newIncidents,
+      'medical',
+      state.simTime,
+      (severity) => MEDICAL.RESOLVE_TIME[severity as keyof typeof MEDICAL.RESOLVE_TIME] ?? MEDICAL.RESOLVE_TIME.medium
+    );
+    if (fsmChanged) hasChanges = true;
 
     if (hasChanges) {
       return { incidents: newIncidents, teams: newTeams };

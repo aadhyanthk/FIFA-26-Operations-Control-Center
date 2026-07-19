@@ -1,36 +1,76 @@
 import type { StadiumState, FoodCourtState } from '../store/stadiumStore';
 import type { StadiumEvent } from './EventEngine';
+import { OCC_CONSTANTS } from '../utils/operationsConstants';
 
+const { FOOD, TIME } = OCC_CONSTANTS;
+
+/**
+ * Simulates food court vendor operations across the FIFA 26 stadium on match day.
+ *
+ * ## Model
+ * Each food court:
+ * - Accumulates headcount based on adjacent zone density and match phase
+ * - Processes fans at a configurable rate (reduced during equipment failures)
+ * - Depletes food/drink stock proportional to throughput
+ * - Generates incidents for equipment failures and stock shortages
+ * - Autonomously rebalances crowd via transit to less busy courts
+ *
+ * ## Match Phase Multipliers
+ * | Phase | Multiplier |
+ * |---|---|
+ * | Halftime | 3× (maximum rush) |
+ * | Pre-game | 1.5× |
+ * | Active play | 0.5× |
+ *
+ * @param state - Full stadium state snapshot
+ * @param deltaTime - Seconds elapsed since last tick
+ * @returns Partial state containing updated `foodCourts` and `incidents`
+ */
 export class FoodEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const newIncidents: StadiumEvent[] = [...state.incidents];
-    let newFoodCourts: Record<string, FoodCourtState> = { ...state.foodCourts };
+    const newFoodCourts: Record<string, FoodCourtState> = {
+      ...state.foodCourts,
+    };
     let hasChanges = false;
 
-    // Match phases
-    let matchPhaseMultiplier = 1.0;
-    if (state.simTime >= 2700 && state.simTime < 3600) {
-      matchPhaseMultiplier = 3.0; // Halftime rush
-    } else if (state.simTime < 0) {
-      matchPhaseMultiplier = 1.5; // Pre-game
+    // Determine demand multiplier for current match phase
+    let matchPhaseMultiplier: number;
+    if (
+      state.simTime >= TIME.HALFTIME_START &&
+      state.simTime < TIME.HALFTIME_END
+    ) {
+      matchPhaseMultiplier = FOOD.PHASE_MULTIPLIER.halftime;
+    } else if (state.simTime < TIME.KICKOFF) {
+      matchPhaseMultiplier = FOOD.PHASE_MULTIPLIER.preGame;
     } else {
-      matchPhaseMultiplier = 0.5; // Active gameplay
+      matchPhaseMultiplier = FOOD.PHASE_MULTIPLIER.activePlay;
     }
 
-    Object.values(newFoodCourts).forEach(fc => {
-      const zone = Object.values(state.zones).find(z => z.name === fc.location);
+    Object.values(newFoodCourts).forEach((fc) => {
+      const zone = Object.values(state.zones).find(
+        (z) => z.name === fc.location
+      );
       const density = zone ? zone.density : 0.5;
 
-      const demandRate = (density * 5 * matchPhaseMultiplier);
-      const newPeople = demandRate * deltaTime;
-      fc.headcount += newPeople;
+      // Add incoming demand
+      const vendorDemandPerSecond = density * 5 * matchPhaseMultiplier;
+      fc.headcount += vendorDemandPerSecond * deltaTime;
 
       // Equipment failure
-      if (fc.equipmentStatus === 'operational' && Math.random() < 0.0001) {
+      if (
+        fc.equipmentStatus === 'operational' &&
+        Math.random() < FOOD.EQUIPMENT_FAIL_CHANCE
+      ) {
         fc.equipmentStatus = 'failed';
         hasChanges = true;
-        
-        const exists = newIncidents.find(i => i.type === 'maintenance' && i.location === fc.name && i.status !== 'resolved');
+
+        const exists = newIncidents.find(
+          (i) =>
+            i.type === 'maintenance' &&
+            i.location === fc.name &&
+            i.status !== 'resolved'
+        );
         if (!exists) {
           newIncidents.unshift({
             id: `ev-mnt-equip-${Date.now()}-${fc.id}`,
@@ -38,40 +78,51 @@ export class FoodEngine {
             type: 'maintenance',
             severity: 'high',
             title: `Equipment Failure at ${fc.name}`,
-            description: `A vendor equipment piece has failed. Throughput is reduced and some fans will gradually leave the queue.`,
+            description:
+              'A vendor equipment piece has failed. Throughput is reduced and some fans will gradually leave the queue.',
             location: fc.name,
             relatedEvents: [],
-            status: 'new'
+            status: 'new',
           });
         }
       }
 
-      let processingRate = 2.0; 
+      // Processing rate degrades on equipment failure; fans also abandon queue
+      let processingRate = FOOD.NORMAL_PROCESSING_RATE;
       if (fc.equipmentStatus === 'failed') {
-        processingRate = 1.0;
-        // Fans gradually leave the queue because they wanted the food from the broken equipment
-        const leaving = Math.min(fc.headcount, 0.5 * deltaTime); 
-        fc.headcount = Math.max(0, fc.headcount - leaving);
+        processingRate = FOOD.FAILED_PROCESSING_RATE;
+        const abandoning = Math.min(
+          fc.headcount,
+          FOOD.EQUIPMENT_FAIL_ABANDON_RATE * deltaTime
+        );
+        fc.headcount = Math.max(0, fc.headcount - abandoning);
       }
-      
+
       const processed = Math.min(fc.headcount, processingRate * deltaTime);
       fc.headcount = Math.max(0, fc.headcount - processed);
-      if (processed > 0 || newPeople > 0) hasChanges = true;
+      if (processed > 0 || vendorDemandPerSecond > 0) hasChanges = true;
 
-      let drinkDepletion = processed * 0.05;
-      if (state.weather.temperature > 30) {
-        drinkDepletion *= 1.3; 
+      // Stock depletion
+      let drinkDepletion = processed * FOOD.STOCK_DEPLETION_PER_FAN;
+      if (state.weather.temperature > FOOD.HOT_WEATHER_TEMP_THRESHOLD) {
+        drinkDepletion *= FOOD.HOT_WEATHER_DRINK_MULTIPLIER;
       }
-      const foodDepletion = processed * 0.05;
+      const foodDepletion = processed * FOOD.STOCK_DEPLETION_PER_FAN;
 
       fc.drinkStock = Math.max(0, fc.drinkStock - drinkDepletion);
       fc.foodStock = Math.max(0, fc.foodStock - foodDepletion);
-      
-      fc.revenue += processed * 15; 
+      fc.revenue += processed * FOOD.REVENUE_PER_FAN;
 
-      if (fc.drinkStock < 20 || fc.foodStock < 20) {
-        const item = fc.drinkStock < 20 ? 'Drinks' : 'Food';
-        const exists = newIncidents.find(i => i.type === 'maintenance' && i.location === fc.name && i.title.includes('Stock') && i.status !== 'resolved');
+      // Low stock alert
+      if (fc.drinkStock < FOOD.LOW_STOCK_THRESHOLD || fc.foodStock < FOOD.LOW_STOCK_THRESHOLD) {
+        const item = fc.drinkStock < FOOD.LOW_STOCK_THRESHOLD ? 'Drinks' : 'Food';
+        const exists = newIncidents.find(
+          (i) =>
+            i.type === 'maintenance' &&
+            i.location === fc.name &&
+            i.title.includes('Stock') &&
+            i.status !== 'resolved'
+        );
         if (!exists) {
           newIncidents.unshift({
             id: `ev-log-stock-${Date.now()}-${fc.id}`,
@@ -79,17 +130,24 @@ export class FoodEngine {
             type: 'maintenance',
             severity: 'high',
             title: `Low ${item} Stock at ${fc.name}`,
-            description: `${item} stock is critically low (<20%). Maintenance resupply needed.`,
+            description: `${item} stock is critically low (<${FOOD.LOW_STOCK_THRESHOLD}%). Maintenance resupply needed.`,
             location: fc.name,
             relatedEvents: [],
-            status: 'new'
+            status: 'new',
           });
           hasChanges = true;
         }
       }
 
-      if (fc.headcount > 1000) {
-        const exists = newIncidents.find(i => i.type === 'crowd' && i.location === fc.name && i.title.includes('Crowded') && i.status !== 'resolved');
+      // Crowded food court alert
+      if (fc.headcount > FOOD.CROWDED_THRESHOLD) {
+        const exists = newIncidents.find(
+          (i) =>
+            i.type === 'crowd' &&
+            i.location === fc.name &&
+            i.title.includes('Crowded') &&
+            i.status !== 'resolved'
+        );
         if (!exists) {
           newIncidents.unshift({
             id: `ev-crd-queue-${Date.now()}-${fc.id}`,
@@ -97,23 +155,23 @@ export class FoodEngine {
             type: 'crowd',
             severity: 'medium',
             title: `Crowded Food Court at ${fc.name}`,
-            description: `Food court headcount has exceeded 1000 people (${Math.floor(fc.headcount)} currently).`,
+            description: `Food court headcount has exceeded ${FOOD.CROWDED_THRESHOLD} people (${Math.floor(fc.headcount)} currently).`,
             location: fc.name,
             relatedEvents: [],
-            status: 'new'
+            status: 'new',
           });
           hasChanges = true;
         }
       }
     });
 
-    // Autonomous Fan Behavior for load balancing (Transit logic)
+    // Autonomous load balancing: fans walk from crowded courts to short queues
     const fcList = Object.values(newFoodCourts);
-    fcList.forEach(fc => {
-      // Process arriving transits
+    fcList.forEach((fc) => {
+      // Process arriving transit crowds
       if (fc.inboundTransits && fc.inboundTransits.length > 0) {
-        const remaining: {amount: number, timeRemaining: number}[] = [];
-        fc.inboundTransits.forEach(t => {
+        const remaining: { amount: number; timeRemaining: number }[] = [];
+        fc.inboundTransits.forEach((t) => {
           t.timeRemaining -= deltaTime;
           if (t.timeRemaining <= 0) {
             fc.headcount += t.amount;
@@ -125,21 +183,31 @@ export class FoodEngine {
         fc.inboundTransits = remaining;
       }
 
-      // If queue is huge, some fans decide to walk to a shorter one
-      if (fc.headcount > 500) {
-        const candidates = fcList.filter(f => f.id !== fc.id && f.headcount < 150);
+      // Overflow fans voluntarily walk to a shorter queue
+      if (fc.headcount > FOOD.LOAD_BALANCE_THRESHOLD) {
+        const candidates = fcList.filter(
+          (f) =>
+            f.id !== fc.id && f.headcount < FOOD.LOAD_BALANCE_CANDIDATE_MAX
+        );
         if (candidates.length > 0) {
-          // Transfer ~10% of the excess crowd per second (so it's gradual)
-          const leavingRate = (fc.headcount - 500) * 0.10;
-          const leaving = Math.min(fc.headcount - 500, leavingRate * deltaTime);
-          
+          const excessHeadcount = fc.headcount - FOOD.LOAD_BALANCE_THRESHOLD;
+          const leaving = Math.min(
+            excessHeadcount,
+            excessHeadcount * FOOD.LOAD_BALANCE_RATE * deltaTime
+          );
+
           if (leaving > 1) {
             fc.headcount -= leaving;
-            const candidate = candidates[Math.floor(Math.random() * candidates.length)];
-            
+            const candidate =
+              candidates[Math.floor(Math.random() * candidates.length)];
             candidate.inboundTransits = [
               ...(candidate.inboundTransits || []),
-              { amount: leaving, timeRemaining: 180 + Math.random() * 120 } // 3 to 5 mins walk
+              {
+                amount: leaving,
+                timeRemaining:
+                  FOOD.TRANSIT_TIME_MIN +
+                  Math.random() * FOOD.TRANSIT_TIME_RANGE,
+              },
             ];
             hasChanges = true;
           }

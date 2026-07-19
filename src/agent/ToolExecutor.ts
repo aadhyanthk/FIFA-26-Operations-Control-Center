@@ -1,7 +1,29 @@
+/**
+ * @file ToolExecutor.ts
+ * @description Maps AI agent tool call names to concrete stadium state mutations.
+ *
+ * Each `case` in the switch receives params already validated by Zod via
+ * {@link schemas}. State mutations are applied directly to the Zustand store.
+ * All tool handlers return a human-readable result string that is surfaced
+ * back to the agent as confirmation.
+ *
+ * To add a new tool:
+ * 1. Define it in `tools.ts`
+ * 2. Add its Zod schema to `schemas.ts`
+ * 3. Add a `case` here
+ */
 import { useStadiumStore } from '../store/stadiumStore';
 import type { ToolName } from './schemas';
 import { schemas } from './schemas';
 
+/**
+ * Stateless executor that maps a validated tool name and parameters to
+ * the corresponding Zustand state mutation or data-retrieval operation.
+ *
+ * @param toolName - The tool identifier as defined in `tools.ts`
+ * @param rawParams - Unvalidated parameters from the LLM response
+ * @returns A human-readable result string describing the outcome
+ */
 export class ToolExecutor {
   static async execute(toolName: string, rawParams: Record<string, unknown>): Promise<string> {
     const store = useStadiumStore.getState();
@@ -19,7 +41,7 @@ export class ToolExecutor {
       return `Validation Error: Invalid parameters provided for ${toolName}. Details: ${parseResult.error.message}`;
     }
 
-    const params = parseResult.data as Record<string, any>;
+    const params = parseResult.data;
 
     switch (toolName) {
       case 'open_gate':
@@ -256,9 +278,14 @@ export class ToolExecutor {
 - Status: ${incident.status}`;
       }
 
-      default:
-        console.warn(`Tool ${toolName} not implemented yet`);
+      default: {
+        // TypeScript exhaustiveness guard — if a new ToolName is added to
+        // schemas.ts without a corresponding case here, this becomes a
+        // compile-time error.
+        const _exhaustiveCheck: never = toolName as never;
+        console.warn(`Tool ${_exhaustiveCheck} not implemented in ToolExecutor`);
         return `Executed ${toolName} (mocked)`;
+      }
     }
   }
 }

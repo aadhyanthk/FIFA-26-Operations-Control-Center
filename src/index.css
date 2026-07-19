@@ -384,3 +384,48 @@ input, textarea {
     max-height: 400px;
   }
 }
+
+/* ============================================================
+   Layout utilities (replaces inline styles in App.tsx)
+   ============================================================ */
+
+/** Main scrollable content area below TopBar + TabBar */
+.layout-content {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  flex: 1;
+  margin-top: 88px;   /* TopBar(48) + TabBar(40) */
+  margin-bottom: 32px; /* StatusBar(32) */
+  position: relative;
+  overflow: hidden;
+}
+
+/** The scrollable tab view pane */
+.layout-tab-content {
+  flex: 1;
+  padding: var(--space-md);
+  overflow-y: auto;
+}
+
+/** Announcement banner that slides in under the TabBar */
+.announcement-banner {
+  position: absolute;
+  top: 88px;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: var(--info-bg);
+  color: var(--info);
+  border-bottom: 1px solid var(--info-border);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.announcement-banner__dismiss {
+  color: var(--info);
+}

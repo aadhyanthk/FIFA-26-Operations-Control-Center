@@ -1,100 +1,146 @@
 import type { StadiumState } from '../store/stadiumStore';
+import { OCC_CONSTANTS } from '../utils/operationsConstants';
 
+const { CROWD, TIME } = OCC_CONSTANTS;
+
+/**
+ * Simulates the directional flow of fans through MetLife Stadium's zones
+ * across match-day phases.
+ *
+ * ## Flow Phases
+ * | Phase | Direction |
+ * |---|---|
+ * | Pre-game / active halves | Concourse → Seating |
+ * | Halftime | Seating → Concourse (surge) |
+ * | Exodus | Seating → Concourse → Gate queues |
+ *
+ * Zone densities are recalculated after each movement step.
+ * The `transport.newlyEntered` value (set by `GateEngine`) drives
+ * the initial injection into concourse zones.
+ *
+ * ## Causal Inputs
+ * - `transport.newlyEntered` — fans who passed through gates this tick
+ * - `state.simTime` — determines active phase
+ *
+ * @param state - Full stadium state snapshot
+ * @param deltaTime - Seconds elapsed since last tick
+ * @returns Partial state containing updated `zones` and `transport`
+ */
 export class CrowdEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const zones = { ...state.zones };
     const transport = state.transport;
     const newlyEntered = transport?.newlyEntered || 0;
 
-    // Handle Inflow from gates to concourses
-    const concourseKeys = Object.keys(zones).filter(k => k.startsWith('concourse'));
+    const concourseKeys = Object.keys(zones).filter((k) =>
+      k.startsWith('concourse')
+    );
+    const seatingKeys = Object.keys(zones).filter(
+      (k) => !k.startsWith('concourse')
+    );
+
+    // Inject newly arrived fans into concourses
     if (newlyEntered > 0 && concourseKeys.length > 0) {
-      const perConcourse = newlyEntered / concourseKeys.length;
-      concourseKeys.forEach(k => {
-        zones[k].currentOccupancy += perConcourse;
+      const occupancyPerConcourse = newlyEntered / concourseKeys.length;
+      concourseKeys.forEach((k) => {
+        zones[k].currentOccupancy += occupancyPerConcourse;
       });
     }
 
-    // Match Phase Directional Flow
-    const isHalftime = state.simTime >= 2700 && state.simTime < 3600;
-    const isExodus = state.simTime >= 6300;
-    
-    // In Pre-Game, First Half, Second Half: Fans flow Concourse -> Seating
-    // In Halftime: Fans flow Seating -> Concourse
-    // In Exodus: Fans flow Seating -> Concourse -> Gates (outflow)
-    
-    const seatingKeys = Object.keys(zones).filter(k => !k.startsWith('concourse'));
-    
+    const isHalftime =
+      state.simTime >= TIME.HALFTIME_START &&
+      state.simTime < TIME.HALFTIME_END;
+    const isExodus = state.simTime >= TIME.SECOND_HALF_END;
+
     if (isExodus) {
-      // Seating empties to concourses
-      seatingKeys.forEach(seatKey => {
+      // Fans drain from seating into concourses
+      seatingKeys.forEach((seatKey) => {
         const seating = zones[seatKey];
         if (seating.currentOccupancy > 0) {
-          const leaving = Math.min(seating.currentOccupancy, seating.maxCapacity * 0.05 * deltaTime);
+          const leaving = Math.min(
+            seating.currentOccupancy,
+            seating.maxCapacity * CROWD.EXODUS_FLOW_RATE * deltaTime
+          );
           seating.currentOccupancy -= leaving;
-          // Distribute to all concourses for simplicity
-          const perConcourse = leaving / concourseKeys.length;
-          concourseKeys.forEach(k => zones[k].currentOccupancy += perConcourse);
+          const occupancyPerConcourse = leaving / concourseKeys.length;
+          concourseKeys.forEach(
+            (k) => (zones[k].currentOccupancy += occupancyPerConcourse)
+          );
         }
       });
-      // Concourses empty to gates (outflow)
+
+      // Concourses drain to gate queues
       let totalLeavingConcourses = 0;
-      concourseKeys.forEach(conKey => {
+      concourseKeys.forEach((conKey) => {
         const concourse = zones[conKey];
         if (concourse.currentOccupancy > 0) {
-          const leaving = Math.min(concourse.currentOccupancy, concourse.maxCapacity * 0.05 * deltaTime);
+          const leaving = Math.min(
+            concourse.currentOccupancy,
+            concourse.maxCapacity * CROWD.EXODUS_FLOW_RATE * deltaTime
+          );
           concourse.currentOccupancy -= leaving;
           totalLeavingConcourses += leaving;
         }
       });
+
       if (totalLeavingConcourses > 0) {
-        // Distribute to gates (outflow)
         const gates = { ...state.gates };
-        const openGateKeys = Object.keys(gates).filter(k => gates[k].isOpen);
+        const openGateKeys = Object.keys(gates).filter(
+          (k) => gates[k].isOpen
+        );
         if (openGateKeys.length > 0) {
           const perGate = totalLeavingConcourses / openGateKeys.length;
-          openGateKeys.forEach(k => {
-            gates[k] = { ...gates[k], queueLength: gates[k].queueLength + perGate };
+          openGateKeys.forEach((k) => {
+            gates[k] = {
+              ...gates[k],
+              queueLength: gates[k].queueLength + perGate,
+            };
           });
           return { zones, gates, transport: { ...transport, newlyEntered: 0 } };
         }
       }
     } else if (isHalftime) {
-      // Surge from seating to concourses (40% leave seats)
-      seatingKeys.forEach(seatKey => {
+      // Halftime surge: fans leave seats for concourses
+      seatingKeys.forEach((seatKey) => {
         const seating = zones[seatKey];
-        // Target occupancy during halftime is 60% of current max
-        const targetOccupancy = seating.maxCapacity * 0.6;
+        const targetOccupancy =
+          seating.maxCapacity * CROWD.HALFTIME_SEATED_FRACTION;
         if (seating.currentOccupancy > targetOccupancy) {
-          const leaving = Math.min(seating.currentOccupancy - targetOccupancy, seating.maxCapacity * 0.02 * deltaTime);
+          const leaving = Math.min(
+            seating.currentOccupancy - targetOccupancy,
+            seating.maxCapacity * CROWD.SEATING_FLOW_RATE * deltaTime
+          );
           seating.currentOccupancy -= leaving;
-          const perConcourse = leaving / concourseKeys.length;
-          concourseKeys.forEach(k => zones[k].currentOccupancy += perConcourse);
+          const occupancyPerConcourse = leaving / concourseKeys.length;
+          concourseKeys.forEach(
+            (k) => (zones[k].currentOccupancy += occupancyPerConcourse)
+          );
         }
       });
     } else {
-      // Active Halves & Pre-Game: Concourse to Seating
-      // If there are people in the concourse, they try to find their seats
+      // Pre-game and active halves: fans move from concourses to seats
       let concoursePool = 0;
-      concourseKeys.forEach(conKey => {
+      concourseKeys.forEach((conKey) => {
         const concourse = zones[conKey];
-        const leaving = Math.min(concourse.currentOccupancy, concourse.maxCapacity * 0.02 * deltaTime);
+        const leaving = Math.min(
+          concourse.currentOccupancy,
+          concourse.maxCapacity * CROWD.SEATING_FLOW_RATE * deltaTime
+        );
         concourse.currentOccupancy -= leaving;
         concoursePool += leaving;
       });
-      
+
       if (concoursePool > 0) {
         const perSeat = concoursePool / seatingKeys.length;
-        seatingKeys.forEach(seatKey => {
+        seatingKeys.forEach((seatKey) => {
           zones[seatKey].currentOccupancy += perSeat;
         });
       }
     }
 
-    // Update densities
-    Object.keys(zones).forEach(key => {
+    // Recalculate densities and clamp occupancy
+    Object.keys(zones).forEach((key) => {
       const zone = zones[key];
-      // Clamp just in case
       zone.currentOccupancy = Math.max(0, zone.currentOccupancy);
       zone.density = zone.currentOccupancy / zone.maxCapacity;
     });
