@@ -10,6 +10,10 @@ describe('WeatherEngine', () => {
     tickCount: 0,
     speed: 1,
     isPaused: false,
+    announcementBanner: null,
+    activeMatchPhase: 'Pre-Game',
+    tick: () => {},
+    setAnnouncementBanner: () => {},
     weather: {
       temperature: 20,
       rainIntensity: 0,
