@@ -3,7 +3,7 @@ import { create } from 'zustand';
 export interface PlanAction {
   id: string;
   tool: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
   description: string;
   status: 'pending' | 'executing' | 'done' | 'failed';
 }

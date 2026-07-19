@@ -77,7 +77,7 @@ export const IncidentFeed: React.FC = () => {
       </div>
       
       {/* Scrollable Feed */}
-      <div ref={feedRef} className="flex-1 p-md flex-col gap-sm" style={{ overflowY: 'auto' }}>
+      <div ref={feedRef} className="flex-1 p-md flex-col gap-sm" style={{ overflowY: 'auto' }} aria-live="polite">
         
         {/* Active Incidents */}
         {filteredActive.length === 0 && filter === 'All' ? (

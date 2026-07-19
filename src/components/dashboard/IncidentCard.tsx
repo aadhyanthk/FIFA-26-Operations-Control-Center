@@ -28,6 +28,17 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onClick })
   
   return (
     <div 
+      role="button"
+      tabIndex={0}
+      aria-expanded={isExpanded}
+      aria-label={`Incident: ${incident.title}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsExpanded(!isExpanded);
+          if (onClick) onClick(incident.id);
+        }
+      }}
       onClick={() => {
         setIsExpanded(!isExpanded);
         if (onClick) onClick(incident.id);
@@ -42,7 +53,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onClick })
     >
       <div className="flex-row justify-between items-center">
         <div className="flex-row items-center gap-sm">
-          <SeverityBadge severity={isResolved ? 'ok' : incident.severity as any} />
+          <SeverityBadge severity={isResolved ? 'ok' : incident.severity} />
           <span style={{ fontSize: '1.2em' }}>{icon}</span>
           <span className="text-sm font-semibold text-primary">
             {incident.title}

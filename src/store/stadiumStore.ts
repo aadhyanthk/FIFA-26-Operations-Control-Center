@@ -17,6 +17,8 @@ export interface TransportState {
   busDelays: number; // minutes
   incomingPassengers: number;
   dispersingCrowds: { amount: number; timeRemaining: number }[];
+  newlyEntered?: number;
+  departedPassengers?: number;
 }
 
 export interface GateState {

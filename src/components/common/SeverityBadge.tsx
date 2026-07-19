@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Severity = 'low' | 'medium' | 'high' | 'critical' | 'ok';
+type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical' | 'ok';
 
 interface SeverityBadgeProps {
   severity: Severity;

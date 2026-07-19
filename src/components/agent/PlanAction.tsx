@@ -4,7 +4,7 @@ interface PlanActionProps {
   action: {
     id: string;
     tool: string;
-    params: Record<string, any>;
+    params: Record<string, unknown>;
     status: 'pending' | 'executing' | 'done' | 'failed';
   };
 }

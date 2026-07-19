@@ -4,11 +4,17 @@ export interface ChatMessage {
   name?: string;
 }
 
+export interface OllamaResponse {
+  role: 'assistant';
+  content: string;
+  tool_calls?: { function: { name: string; arguments: Record<string, unknown> } }[];
+}
+
 export class OllamaClient {
   private static readonly ENDPOINT = 'http://127.0.0.1:11434/api/chat';
   private static readonly MODEL = 'phi3:mini';
 
-  static async chat(messages: ChatMessage[]): Promise<any> {
+  static async chat(messages: ChatMessage[]): Promise<OllamaResponse> {
     try {
       const payload = {
         model: this.MODEL,

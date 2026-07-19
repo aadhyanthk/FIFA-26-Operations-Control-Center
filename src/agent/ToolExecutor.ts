@@ -1,7 +1,7 @@
 import { useStadiumStore } from '../store/stadiumStore';
 
 export class ToolExecutor {
-  static async execute(toolName: string, params: Record<string, any>): Promise<string> {
+  static async execute(toolName: string, params: Record<string, unknown>): Promise<string> {
     const store = useStadiumStore.getState();
 
     switch (toolName) {

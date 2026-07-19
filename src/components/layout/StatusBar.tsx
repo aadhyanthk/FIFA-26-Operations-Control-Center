@@ -33,6 +33,7 @@ export const StatusBar: React.FC = () => {
           onClick={() => setSpeed(speed === 10 ? 1 : (speed === 1 ? 2 : (speed === 2 ? 5 : 10)))}
           className="btn btn--sm text-primary"
           style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}
+          aria-label={`Toggle simulation speed. Current speed is ${speed}x`}
         >
           ▶ {speed}x
         </button>
@@ -40,10 +41,12 @@ export const StatusBar: React.FC = () => {
           onClick={togglePause}
           className="btn btn--sm btn--ghost"
           style={{ color: isPaused ? 'var(--warning)' : 'var(--text-secondary)' }}
+          aria-label={isPaused ? "Play simulation" : "Pause simulation"}
         >
           {isPaused ? '▶' : '⏸'}
         </button>
         <button
+          aria-label="Inject test event"
           onClick={() => {
             const types = ['crowd', 'medical', 'security', 'maintenance', 'weather', 'transport'] as const;
             const type = types[Math.floor(Math.random() * types.length)];

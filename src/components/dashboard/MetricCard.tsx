@@ -9,7 +9,7 @@ interface MetricCardProps {
   trend?: number; // percentage change
   status?: 'ok' | 'warning' | 'critical';
   progress?: number; // 0 to 100
-  history?: any[];
+  history?: Record<string, number | string>[];
   dataKey?: string;
 }
 
@@ -19,7 +19,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   const statusColor = `var(--${status})`;
 
   return (
-    <div className="card flex-col gap-sm" style={{ borderColor: status !== 'ok' ? statusColor : undefined }}>
+    <div 
+      className="card flex-col gap-sm" 
+      style={{ borderColor: status !== 'ok' ? statusColor : undefined }}
+      role="region"
+      aria-label={`${title} Metric: ${value}`}
+    >
       <div className="text-secondary text-xs font-medium uppercase tracking-wider">
         {title}
       </div>

@@ -3,7 +3,7 @@ import type { StadiumState } from '../store/stadiumStore';
 export class CrowdEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const zones = { ...state.zones };
-    const transport = state.transport as any;
+    const transport = state.transport;
     const newlyEntered = transport?.newlyEntered || 0;
 
     // Handle Inflow from gates to concourses
@@ -56,7 +56,7 @@ export class CrowdEngine {
           openGateKeys.forEach(k => {
             gates[k] = { ...gates[k], queueLength: gates[k].queueLength + perGate };
           });
-          return { zones, gates, transport: { ...transport, newlyEntered: 0 } as any };
+          return { zones, gates, transport: { ...transport, newlyEntered: 0 } };
         }
       }
     } else if (isHalftime) {
@@ -99,6 +99,6 @@ export class CrowdEngine {
       zone.density = zone.currentOccupancy / zone.maxCapacity;
     });
 
-    return { zones, transport: { ...transport, newlyEntered: 0 } as any };
+    return { zones, transport: { ...transport, newlyEntered: 0 } };
   }
 }

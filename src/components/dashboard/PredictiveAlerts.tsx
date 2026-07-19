@@ -4,10 +4,18 @@ import { useUIStore } from '../../store/uiStore';
 import { Agent } from '../../agent/Agent';
 import type { StadiumEvent } from '../../simulation/EventEngine';
 
+const AiIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="AI Monitor" className={className}>
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+    <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+  </svg>
+);
+
 export const PredictiveAlerts: React.FC = () => {
   const { gates, transport, incidents } = useStadiumStore();
   const setAiPanelOpen = useUIStore(state => state.setAiPanelOpen);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [dismissedAlert, setDismissedAlert] = useState<string | null>(null);
 
   let alertMessage = null;
   let triggeringEvent: StadiumEvent | null = null;
@@ -42,33 +50,41 @@ export const PredictiveAlerts: React.FC = () => {
     setIsGenerating(false);
   };
 
-  if (!alertMessage) {
+  if (!alertMessage || alertMessage === dismissedAlert) {
     return (
       <div className="card flex-row gap-md items-center text-secondary">
-        <div className="text-lg" style={{ filter: 'grayscale(100%)' }}>🤖</div>
+        <div className="text-muted"><AiIcon /></div>
         <div>
           <div className="font-semibold text-primary">AI Predictive Monitor</div>
-          <div className="text-base">All systems nominal. No predictive risks detected.</div>
+          <div className="text-base">Predictive Monitor active. No emerging risks detected.</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="card flex-row gap-md items-start text-primary" style={{ backgroundColor: 'var(--info-bg)', borderColor: 'var(--info)' }}>
-      <div className="text-lg">🤖</div>
-      <div>
+    <div className="card card--info flex-row gap-md items-start text-primary">
+      <div className="text-info mt-xs"><AiIcon /></div>
+      <div className="flex-1">
         <div className="font-semibold mb-xs">AI Predictive Alert</div>
         <div className="text-base text-secondary">
           {alertMessage}
         </div>
-        <div className="mt-sm">
+        <div className="mt-sm flex-row items-center">
           <button 
             className="btn btn--sm btn--primary" 
             onClick={handleGeneratePlan}
             disabled={isGenerating}
           >
             {isGenerating ? 'Generating...' : 'Generate Plan'}
+          </button>
+          <button 
+            className="btn btn--sm btn--ghost" 
+            style={{ marginLeft: 'var(--space-sm)' }}
+            onClick={() => setDismissedAlert(alertMessage)}
+            disabled={isGenerating}
+          >
+            Dismiss
           </button>
         </div>
       </div>

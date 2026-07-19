@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
   /* Backgrounds */
@@ -10,8 +10,8 @@
 
   /* Text */
   --text-primary:   #f1f5f9;  /* Primary text — high contrast */
-  --text-secondary: #94a3b8;  /* Labels, timestamps */
-  --text-muted:     #64748b;  /* Disabled, placeholders */
+  --text-secondary: #cbd5e1;  /* Labels, timestamps */
+  --text-muted:     #94a3b8;  /* Disabled, placeholders */
 
   /* Severity System */
   --critical:       #ef4444;  /* 🔴 Critical alerts, emergencies */
@@ -56,7 +56,7 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
@@ -80,7 +80,7 @@ a:hover {
 }
 
 button {
-  font-family: 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   cursor: pointer;
   border: none;
   background: none;
@@ -88,7 +88,7 @@ button {
 }
 
 input, textarea {
-  font-family: 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
 /* Scrollbars */
@@ -136,6 +136,10 @@ input, textarea {
 .text-primary { color: var(--text-primary); }
 .text-secondary { color: var(--text-secondary); }
 .text-muted { color: var(--text-muted); }
+.text-info { color: var(--info); }
+.text-critical { color: var(--critical); }
+.text-warning { color: var(--warning); }
+.text-ok { color: var(--ok); }
 .text-xs { font-size: 11px; }
 .text-sm { font-size: 12px; }
 .text-base { font-size: 13px; }
@@ -209,6 +213,10 @@ input, textarea {
 .card--warning {
   border-color: var(--warning);
   box-shadow: var(--shadow-warning);
+}
+.card--info {
+  background-color: var(--info-bg);
+  border-color: var(--info-border);
 }
 
 .panel {

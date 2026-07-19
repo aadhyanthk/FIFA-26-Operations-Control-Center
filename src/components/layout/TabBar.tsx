@@ -13,14 +13,16 @@ export const TabBar: React.FC = () => {
         {tabs.map((tab) => {
           const isActive = tab === activeTab;
           return (
-            <div 
+            <button 
               key={tab} 
               onClick={() => setActiveTab(tab)}
               className={`tab ${isActive ? 'tab--active' : ''}`}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'inherit', font: 'inherit' }}
+              role="tab"
+              aria-selected={isActive}
             >
               {tab}
-            </div>
+            </button>
           );
         })}
       </div>

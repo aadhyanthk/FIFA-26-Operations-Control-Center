@@ -41,8 +41,8 @@ export class GateEngine {
           gate.queueLength -= leaving;
           
           if (leaving > 0) {
-            (transport as any).dispersingCrowds = [
-              ...((transport as any).dispersingCrowds || []),
+            transport.dispersingCrowds = [
+              ...(transport.dispersingCrowds || []),
               { amount: leaving, timeRemaining: 120 + Math.random() * 180 }
             ];
           }
@@ -101,8 +101,8 @@ export class GateEngine {
       gates[key] = gate;
     });
 
-    (transport as any).newlyEntered = totalEntered;
-    (transport as any).departedPassengers = ((transport as any).departedPassengers || 0) + totalDeparted;
+    transport.newlyEntered = totalEntered;
+    transport.departedPassengers = (transport.departedPassengers || 0) + totalDeparted;
 
     return { gates, transport };
   }

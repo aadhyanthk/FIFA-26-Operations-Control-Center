@@ -4,6 +4,7 @@ import type { ExecutionPlan } from '../store/agentStore';
 import type { StadiumEvent } from '../simulation/EventEngine';
 import { PromptBuilder } from './PromptBuilder';
 import { OllamaClient } from './OllamaClient';
+import type { OllamaResponse } from './OllamaClient';
 import { TOOL_DEFINITIONS } from './tools';
 import { ToolExecutor } from './ToolExecutor';
 
@@ -51,8 +52,14 @@ export class Agent {
     }
   }
 
-  private parsePlan(response: any, triggeringEvents: StadiumEvent[]): ExecutionPlan {
-    let parsedContent: any = {};
+  private parsePlan(response: OllamaResponse, triggeringEvents: StadiumEvent[]): ExecutionPlan {
+    let parsedContent: {
+      planTitle?: string;
+      reasoning?: string;
+      rootCause?: string;
+      estimatedImpact?: string;
+      tool_calls?: { name: string; arguments: Record<string, unknown> }[];
+    } = {};
     
     if (response.content) {
       try {
@@ -87,7 +94,7 @@ export class Agent {
       }
     } else if (parsedContent.tool_calls && Array.isArray(parsedContent.tool_calls)) {
       // Fallback to JSON tool_calls
-      parsedContent.tool_calls.slice(0, 3).forEach((call: any) => {
+      parsedContent.tool_calls.slice(0, 3).forEach((call) => {
         actions.push({
           id: crypto.randomUUID(),
           tool: call.name,
