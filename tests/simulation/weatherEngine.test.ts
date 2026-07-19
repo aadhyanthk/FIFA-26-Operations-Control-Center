@@ -40,7 +40,6 @@ describe('WeatherEngine', () => {
     },
     setSpeed: () => {},
     togglePause: () => {},
-    applyToolAction: () => {},
     addIncident: () => {},
     resolveIncident: () => {},
     updateState: () => {}

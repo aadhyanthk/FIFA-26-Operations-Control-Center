@@ -16,7 +16,7 @@ describe('EventEngine', () => {
         'A': { id: 'A', isOpen: true, capacityPerHour: 1000, queueLength: 800, activeLanes: 4, averageWaitTime: 25, scannerStatus: 'operational', scannerHealth: 100, mode: 'inflow', currentThroughput: 0 }
       },
       zones: {
-        '101': { id: '101', name: 'Section 101', maxCapacity: 1000, currentOccupancy: 950, density: 0.95 }
+        '101': { id: '101', name: 'Section 101', maxCapacity: 1000, currentOccupancy: 950, density: 0.95, litterLevel: 0, restroomStatus: 'clean', restroomUsage: 0 }
       }
     };
   });

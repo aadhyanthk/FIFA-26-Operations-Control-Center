@@ -40,7 +40,6 @@ describe('TransportEngine', () => {
     },
     setSpeed: () => {},
     togglePause: () => {},
-    applyToolAction: () => {},
     addIncident: () => {},
     resolveIncident: () => {},
     updateState: () => {}
@@ -58,7 +57,6 @@ describe('TransportEngine', () => {
 
   it('delays trains if rain intensity is high', () => {
     const state = createBaseState();
-    state.weather.condition = 'rain';
     state.weather.rainIntensity = 0.8;
     const update = engine.tick(state, 0.1);
     expect(update.transport?.trainDelays).toBeGreaterThan(0);
