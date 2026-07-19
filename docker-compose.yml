@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  occ-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS="*"
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    # Use a custom entrypoint to ensure phi3:mini is pulled on startup
+    entrypoint: >
+      /bin/sh -c "
+      ollama serve &
+      sleep 5 &&
+      ollama pull phi3:mini &&
+      wait"
+
+volumes:
+  ollama_data:

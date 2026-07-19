@@ -11,7 +11,11 @@ export interface OllamaResponse {
 }
 
 export class OllamaClient {
-  private static readonly ENDPOINT = 'http://127.0.0.1:11434/api/chat';
+  static get ENDPOINT() {
+    // Dynamically use the current hostname so it works when accessed from other devices on the LAN via Docker
+    const host = typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1';
+    return `http://${host}:11434/api/chat`;
+  }
   private static readonly MODEL = 'phi3:mini';
 
   static async chat(messages: ChatMessage[], onChunk?: (partialContent: string) => void): Promise<OllamaResponse> {
