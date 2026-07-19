@@ -35,3 +35,5 @@ INITIAL-CONVERSATION.MD
 TOFIX.md
 .env
 src-tauri/target
+.agents
+.impeccable
