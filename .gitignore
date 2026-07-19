@@ -26,6 +26,8 @@ dist-ssr
 # Project specific
 GEMINI.md
 PROJECT.md
+PRODUCT.md
+DESIGN.md
 LOG.md
 CHANGES.md
 implementation_plan.md
