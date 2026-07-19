@@ -1,5 +1,9 @@
 import type { StadiumState } from '../store/stadiumStore';
 
+/**
+ * Simulates physical turnstile operations, calculating fan throughput 
+ * based on open lanes, scanner health, and weather modifiers.
+ */
 export class GateEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState> {
     const gates = { ...state.gates };

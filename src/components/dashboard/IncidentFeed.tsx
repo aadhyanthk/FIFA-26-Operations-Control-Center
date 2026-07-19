@@ -95,6 +95,8 @@ export const IncidentFeed: React.FC = () => {
           <div className="mt-md pt-sm" style={{ borderTop: '1px dashed var(--border)' }}>
             <button 
               onClick={() => setResolvedExpanded(!resolvedExpanded)}
+              aria-expanded={resolvedExpanded}
+              aria-label={resolvedExpanded ? "Collapse resolved incidents" : "Expand resolved incidents"}
               className="btn btn--ghost w-full justify-between items-center"
               style={{ color: 'var(--text-secondary)' }}
             >

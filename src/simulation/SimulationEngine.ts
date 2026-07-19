@@ -14,6 +14,11 @@ export interface IEngine {
   tick(state: StadiumState, deltaTime: number): Partial<StadiumState>;
 }
 
+/**
+ * The master simulation engine. Orchestrates the 10Hz tick loop across
+ * all 9 physical stadium sub-engines. Uses a causal pipeline where the
+ * output of one engine feeds into the input of the next.
+ */
 export class SimulationEngine {
   private engines: IEngine[];
 

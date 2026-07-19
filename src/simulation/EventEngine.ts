@@ -14,6 +14,11 @@ export interface StadiumEvent {
 
 import type { StadiumState } from '../store/stadiumStore';
 
+/**
+ * The final stage of the causal tick loop. Scans the aggregated state 
+ * for threshold breaches (e.g. queue density, temp + crowd) and 
+ * fires autonomous operational alerts.
+ */
 export class EventEngine {
   tick(state: StadiumState): Partial<StadiumState> {
     const newIncidents: StadiumEvent[] = [];

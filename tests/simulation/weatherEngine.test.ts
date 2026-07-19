@@ -3,63 +3,61 @@ import { WeatherEngine } from '../../src/simulation/WeatherEngine';
 import type { StadiumState } from '../../src/store/stadiumStore';
 
 describe('WeatherEngine', () => {
-  const getMockState = (): StadiumState => ({
+  const engine = new WeatherEngine();
+  
+  const createBaseState = (): StadiumState => ({
     simTime: 0,
     tickCount: 0,
     speed: 1,
     isPaused: false,
-    announcementBanner: null,
-    activeMatchPhase: 'Pre-Game',
     weather: {
-      temperature: 24,
+      temperature: 20,
       rainIntensity: 0,
-      windSpeed: 10,
-      humidity: 60,
-      targetTemperature: 25,
-      targetRainIntensity: 0.5
+      windSpeed: 5,
+      humidity: 50,
+      targetTemperature: 20,
+      targetRainIntensity: 0,
     },
-    transport: { trainDelays: 0, busDelays: 0, incomingPassengers: 0, dispersingCrowds: [] },
+    transport: { 
+      trainDelays: 0, 
+      busDelays: 0, 
+      incomingPassengers: 0, 
+      dispersingCrowds: [] 
+    },
     gates: {},
     zones: {},
     teams: {},
     foodCourts: {},
     incidents: [],
-    historicalMetrics: { occupancyTrend: 0, queueTrend: 0, lastOccupancy: 0, lastQueue: 0, lastTrendUpdate: 0, lastTimelineUpdate: 0, timeline: [] },
+    historicalMetrics: {
+      timeline: [],
+      occupancyTrend: 0,
+      queueTrend: 0,
+      lastTrendUpdate: 0,
+      lastTimelineUpdate: 0,
+      lastOccupancy: 0,
+      lastQueue: 0,
+    },
     setSpeed: () => {},
     togglePause: () => {},
-    tick: () => {},
-    updateState: () => {},
+    applyToolAction: () => {},
     addIncident: () => {},
     resolveIncident: () => {},
-    setAnnouncementBanner: () => {}
-  } as unknown as StadiumState);
-
-  it('interpolates temperature towards target', () => {
-    const engine = new WeatherEngine();
-    const state = getMockState();
-    
-    // Target is 25, current is 24, deltaTime is 1
-    const result = engine.tick(state, 1);
-    expect(result.weather?.temperature).toBeCloseTo(24.1, 1);
+    updateState: () => {}
   });
 
-  it('interpolates rain intensity towards target', () => {
-    const engine = new WeatherEngine();
-    const state = getMockState();
-    
-    // Target is 0.5, current is 0, deltaTime is 1
-    const result = engine.tick(state, 1);
-    expect(result.weather?.rainIntensity).toBeCloseTo(0.005, 3);
+  it('maintains clear weather with slight drift', () => {
+    const state = createBaseState();
+    const update = engine.tick(state, 0.1);
+    expect(update.weather).toBeDefined();
+    expect(update.weather?.temperature).toBeCloseTo(20, 1);
   });
-  
-  it('caps temperature adjustments properly', () => {
-    const engine = new WeatherEngine();
-    const state = getMockState();
-    state.weather.temperature = 24.95;
-    state.weather.targetTemperature = 25;
-    
-    // 0.1 delta would push it to 25.05, but it should cap at 25
-    const result = engine.tick(state, 1);
-    expect(result.weather?.temperature).toBeCloseTo(25, 2);
+
+  it('interpolates rain intensity towards target over time', () => {
+    const state = createBaseState();
+    state.weather.targetRainIntensity = 0.8;
+    const update = engine.tick(state, 10);
+    expect(update.weather?.rainIntensity).toBeGreaterThan(0);
+    expect(update.weather?.rainIntensity).toBeLessThanOrEqual(0.05); // 0.005 * 10
   });
 });

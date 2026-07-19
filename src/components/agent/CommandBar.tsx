@@ -21,6 +21,7 @@ export const CommandBar: React.FC = () => {
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Query agent or enter command... (e.g. /summary)"
+        aria-label="Command bar input"
         className="w-full text-primary mono text-base"
         style={{ background: 'none', border: 'none', outline: 'none' }}
       />
