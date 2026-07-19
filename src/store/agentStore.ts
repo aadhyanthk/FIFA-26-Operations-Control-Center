@@ -17,13 +17,14 @@ export interface ExecutionPlan {
   rootCause: string;
   actions: PlanAction[];
   estimatedImpact: string;
-  status: 'pending_approval' | 'approved' | 'rejected' | 'executing' | 'completed' | 'failed';
+  status: 'generating' | 'pending_approval' | 'approved' | 'rejected' | 'executing' | 'completed' | 'failed';
   triggeringEvents: string[];
 }
 
 interface AgentState {
   plans: ExecutionPlan[];
   addPlan: (plan: ExecutionPlan) => void;
+  updatePlan: (planId: string, partial: Partial<ExecutionPlan>) => void;
   updatePlanStatus: (planId: string, status: ExecutionPlan['status']) => void;
   setActionStatus: (actionId: string, status: PlanAction['status']) => void;
 }
@@ -31,6 +32,9 @@ interface AgentState {
 export const useAgentStore = create<AgentState>((set) => ({
   plans: [],
   addPlan: (plan) => set((state) => ({ plans: [plan, ...state.plans] })),
+  updatePlan: (planId, partial) => set((state) => ({
+    plans: state.plans.map(p => p.id === planId ? { ...p, ...partial } : p)
+  })),
   updatePlanStatus: (planId, status) => set((state) => ({
     plans: state.plans.map(p => p.id === planId ? { ...p, status } : p)
   })),

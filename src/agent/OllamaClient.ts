@@ -14,7 +14,7 @@ export class OllamaClient {
   private static readonly ENDPOINT = 'http://127.0.0.1:11434/api/chat';
   private static readonly MODEL = 'phi3:mini';
 
-  static async chat(messages: ChatMessage[]): Promise<OllamaResponse> {
+  static async chat(messages: ChatMessage[], onChunk?: (partialContent: string) => void): Promise<OllamaResponse> {
     try {
       const payload = {
         model: this.MODEL,
@@ -56,7 +56,7 @@ export class OllamaClient {
               const parsed = JSON.parse(line);
               if (parsed.message?.content) {
                 fullContent += parsed.message.content;
-                console.log('Stream chunk:', parsed.message.content); // Enabled so we can see it working!
+                if (onChunk) onChunk(fullContent);
               }
             } catch (e) {
               // ignore partial lines

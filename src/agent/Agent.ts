@@ -30,11 +30,50 @@ export class Agent {
 
       const systemPromptWithTools = `${PromptBuilder.SYSTEM_PROMPT}\n\nYou have access to the following tools. You must include any tool calls in your JSON output under the 'tool_calls' array:\n${JSON.stringify(actionTools)}`;
       
+      const placeholderId = crypto.randomUUID();
+      const store = useAgentStore.getState();
+      
+      const placeholderPlan: ExecutionPlan = {
+        id: placeholderId,
+        timestamp: Date.now(),
+        severity: triggeringEvents[0]?.severity || 'medium',
+        title: 'Analyzing Situation...',
+        reasoning: '',
+        rootCause: '',
+        actions: [],
+        estimatedImpact: '',
+        status: 'generating',
+        triggeringEvents: triggeringEvents.map(e => e.id)
+      };
+      
+      store.addPlan(placeholderPlan);
+
+      const onChunk = (partialContent: string) => {
+        const partialUpdate: Partial<ExecutionPlan> = {};
+        
+        // Use non-greedy regex to allow matching incomplete strings that might still be generating
+        const titleMatch = partialContent.match(/"planTitle"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)/);
+        if (titleMatch) partialUpdate.title = titleMatch[1].replace(/\\n/g, '\n');
+        
+        const reasoningMatch = partialContent.match(/"reasoning"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)/);
+        if (reasoningMatch) partialUpdate.reasoning = reasoningMatch[1].replace(/\\n/g, '\n');
+        
+        const rootCauseMatch = partialContent.match(/"rootCause"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)/);
+        if (rootCauseMatch) partialUpdate.rootCause = rootCauseMatch[1].replace(/\\n/g, '\n');
+        
+        const impactMatch = partialContent.match(/"estimatedImpact"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)/);
+        if (impactMatch) partialUpdate.estimatedImpact = impactMatch[1].replace(/\\n/g, '\n');
+
+        if (Object.keys(partialUpdate).length > 0) {
+          useAgentStore.getState().updatePlan(placeholderId, partialUpdate);
+        }
+      };
+
       console.log('Agent React: Calling Ollama...');
       let response = await OllamaClient.chat([
         { role: 'system', content: systemPromptWithTools },
         { role: 'user', content: prompt }
-      ]);
+      ], onChunk);
       
       let retryCount = 0;
       let plan: ExecutionPlan | null = null;
@@ -50,7 +89,7 @@ export class Agent {
             { role: 'user', content: prompt },
             { role: 'assistant', content: response.content },
             { role: 'user', content: 'You failed to output a valid JSON with tool_calls. Please try again and output ONLY valid JSON without markdown wrapping.' }
-          ]);
+          ], onChunk);
           retryCount++;
           plan = null;
         }
@@ -63,8 +102,9 @@ export class Agent {
       console.log('Agent React: Parsed plan:', plan);
       
       // 5. PRESENT
-      useAgentStore.getState().addPlan(plan);
-      console.log('Agent React: Plan added to store.');
+      plan.id = placeholderId; // keep the same ID for the UI
+      useAgentStore.getState().updatePlan(placeholderId, plan);
+      console.log('Agent React: Final plan updated in store.');
       
       return plan;
     } catch (e) {

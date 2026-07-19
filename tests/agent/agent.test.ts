@@ -48,7 +48,16 @@ describe('Agent', () => {
       ]
     };
 
-    (OllamaClient.chat as any).mockResolvedValue({ content: JSON.stringify(mockResponse) });
+    (OllamaClient.chat as any).mockImplementation(async (messages: any[], onChunk?: (s: string) => void) => {
+      const content = JSON.stringify(mockResponse);
+      if (onChunk) {
+        // simulate partial chunks arriving
+        onChunk(`{"planTitle": "Address Crowd Sur`);
+        onChunk(`{"planTitle": "Address Crowd Surge", "reasoning": "Density is too high`);
+        onChunk(content);
+      }
+      return { content };
+    });
 
     const agent = new Agent();
     const plan = await agent.react(useStadiumStore.getState().incidents);
@@ -68,7 +77,11 @@ describe('Agent', () => {
   });
   
   it('should handle malformed JSON gracefully', async () => {
-    (OllamaClient.chat as any).mockResolvedValue('Not a json object');
+    (OllamaClient.chat as any).mockImplementation(async (messages: any[], onChunk?: (s: string) => void) => {
+      const content = 'Not a json object';
+      if (onChunk) onChunk(content);
+      return { content };
+    });
 
     const agent = new Agent();
     

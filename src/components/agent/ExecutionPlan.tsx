@@ -31,12 +31,16 @@ export const ExecutionPlan: React.FC<ExecutionPlanProps> = ({ plan }) => {
 
       <div className="text-base text-secondary">
         <strong>Reasoning:</strong> {plan.reasoning}
+        {plan.status === 'generating' && <span className="typing-cursor">|</span>}
       </div>
 
       <div className="flex-col gap-sm">
         {plan.actions.map(action => (
           <PlanAction key={action.id} action={action} />
         ))}
+        {plan.status === 'generating' && plan.actions.length === 0 && (
+          <div className="text-sm text-secondary italic">Drafting execution actions...</div>
+        )}
       </div>
 
       {plan.status === 'pending_approval' && (
